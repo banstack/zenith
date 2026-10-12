@@ -1,0 +1,8 @@
+blank_issue_enabled: false
+contact_links:
+  - name: Question / study-guide help
+    url: https://github.com/banstack/funmental/issues
+    about: Search existing issues before opening a new one.
+  - name: Security vulnerabilities
+    url: https://github.com/banstack/funmental/security
+    about: Report security issues privately.

@@ -1,5 +1,7 @@
 # Apogee
 
+[![CI](https://github.com/banstack/funmental/actions/workflows/ci.yml/badge.svg)](https://github.com/banstack/funmental/actions/workflows/ci.yml)
+
 A daily trivia launch. Every day there's one free 7-question launch on a rotating topic, the same for everyone. Each right answer lifts you to the next milestone on the way out of the solar system, and the questions get harder as the sky gets darker. Get all seven and you reach the center of the Milky Way, 26,000 light-years away.
 
 Apogee was called Fathom, an ocean dive, until October 2026.
@@ -33,6 +35,12 @@ Server integration tests run when a throwaway database is provided: `TEST_DATABA
 ## Adding questions
 
 Each topic has a bank in `src/content/topics/<topic>.ts`. A question is `[difficulty, prompt, correct answer, wrong, wrong, wrong, explanation?]`, with the correct answer always listed first; choices are shuffled when shown. A question's id comes from its prompt, so editing a prompt makes it a new question. `npm test` checks that every topic has enough questions at each difficulty, that no choices repeat, and that prompts are unique. Adding questions to the end of a bank changes which questions later Daily Launches deal, so accept that upcoming launches will shift.
+
+## Contributing
+
+Questions, study guides, badges and tooling are all welcome. Before you open a pull request, read [CONTRIBUTING.md](./CONTRIBUTING.md) — it covers running the project locally, the content guidelines (one unambiguous correct answer, plausible distractors, neutral tone, no copyrighted text), how to add a math generator, how to add a badge, and what CI checks on every pull request.
+
+Good starting points: add more questions to a topic bank, fix a wrong or ambiguous answer via the *Question report* template, or file a *New question* suggestion. CI runs `npm ci`, typecheck, lint, tests and a build on every pull request.
 
 ## Deploying to Railway
 

@@ -1,0 +1,36 @@
+name: Report a problem with a question
+description: A question's answer is wrong, ambiguous, misspelled, or at the wrong difficulty.
+title: "[Question] "
+labels: [question, good first issue]
+body:
+  - type: input
+    id: question_id
+    attributes:
+      label: Question ID
+      description: The question id (the hash after the topic), or paste the prompt text if you don't have the id.
+    validations:
+      required: true
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What's wrong?
+      options:
+        - Wrong answer
+        - Ambiguous (more than one correct choice)
+        - Typo / unclear wording
+        - Wrong grade level
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Explain the problem. If the answer is wrong, say what it should be and why.
+    validations:
+      required: true
+  - type: input
+    id: suggested_fix
+    attributes:
+      label: Suggested fix
+      description: Optional — the corrected answer or wording.
