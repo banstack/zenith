@@ -1,0 +1,44 @@
+name: Suggest a new question
+description: Add a new trivia question to a topic bank.
+title: "[New question] "
+labels: [question, good first issue]
+body:
+  - type: input
+    id: topic
+    attributes:
+      label: Subject / topic
+      description: Which topic bank this belongs to (general, history, science, math, screen, geography, music, sports, food).
+    validations:
+      required: true
+  - type: input
+    id: grade
+    attributes:
+      label: Grade level (1–5)
+      description: 1 = Sunlight (easy) … 5 = Hadal (expert).
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: The prompt text, neutral and unambiguous.
+    validations:
+      required: true
+  - type: input
+    id: answer
+    attributes:
+      label: Correct answer
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: Wrong options
+      description: Three plausible distractors (common mistakes, not jokes), one per line.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source or reasoning
+      description: Optional link or note for where the answer came from (no copyrighted text).

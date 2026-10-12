@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest a new feature or improvement.
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like to happen?
+      description: A clear description of the feature or improvement.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it needed?
+      description: The problem it solves or the value it adds.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other ways you've thought about solving this.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Game / frontend
+        - Backend / accounts
+        - Content (questions / guides)
+        - Tooling / CI
+        - Other
+    validations:
+      required: false
