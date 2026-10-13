@@ -121,7 +121,7 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
   }
 
   return (
-    <FlightFrame height={state.height} title={`Practice · ${meta.name}`} status={<FuelCells fuel={state.fuel} max={MAX_FUEL} />} banner={banner}>
+    <FlightFrame height={state.height} title={`Practice · ${meta.name}`} status={<FuelCells fuel={state.fuel} max={MAX_FUEL} />} banner={banner} exitTo="/practice">
       <p className="question-meta">
         {DIFFICULTY_NAMES[zoneAt(state.height).difficulty]} questions{state.streak >= 3 ? ` · ${state.streak} in a row, climbing ${Math.round((streakBonus(state.streak) - 1) * 100)}% faster` : ''}
       </p>
