@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AltitudeLadder } from '../components/ClimbCharts'
 import { FlameIcon, TopicIcon } from '../components/Icons'
-import { DAILY_LENGTH, DAILY_ZONE, dailyCategories, dailyNumber, dailyTopic, dailyTopicName, shareText } from '../lib/daily'
+import { DAILY_LENGTH, dailyCategories, dailyNumber, dailyTopic, dailyTopicName, shareText } from '../lib/daily'
 import { DISCOVERIES, dailyStreak } from '../lib/discoveries'
 import { dateKey, fromKey, untilMidnight } from '../lib/dates'
-import { MAX_HEIGHT, ZONES, scoreAt, zoneAt } from '../lib/space'
+import { MAX_HEIGHT, scoreAt, zoneAt } from '../lib/space'
 import { shareResult } from '../lib/share'
 import { useAppData } from '../lib/store'
 import { TOPICS, topicMeta } from '../lib/topics'
@@ -74,7 +74,7 @@ export function Home() {
               </div>
               <div className="squares">
                 {result.answers.map((ok, i) => (
-                  <span key={i} className={`square ${ok ? `z-${ZONES[DAILY_ZONE[i]].id}` : 'miss'}`} />
+                  <span key={i} className={`square ${ok ? 'hit' : 'miss'}`} />
                 ))}
               </div>
               <div className="row">

@@ -116,6 +116,8 @@ export function nextRank(points: number): { name: string; score: number } | null
 
 /** Wordle-style result to paste into a chat. */
 export function shareText(n: number, answers: readonly boolean[]): string {
-  const squares = answers.map((ok, i) => (ok ? ZONES[DAILY_ZONE[i]].square : '⬛')).join('')
-  return `Zenith #${n}\n${squares}  ${formatScore(dailyPoints(answers))}/${formatScore(MAX_POINTS)} · ${dailyRank(dailyPoints(answers))}`
+  const squares = answers.map((ok) => (ok ? '🟩' : '⬛')).join('')
+  const right = answers.filter(Boolean).length
+  const points = dailyPoints(answers)
+  return `Zenith #${n} · ${right}/${answers.length}\n${squares}\n${formatScore(points)}/${formatScore(MAX_POINTS)} · ${dailyRank(points)}`
 }
