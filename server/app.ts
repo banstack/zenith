@@ -1,5 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from 'express'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import {
   createSession,
@@ -266,21 +266,28 @@ export function createApp({ db, staticDir, secureCookies = false, authLimit = 20
   })
 
   if (staticDir && existsSync(staticDir)) {
+    // Link previews in iMessage and Google Messages need an absolute og:image URL, and the site's
+    // own address is only known per request, so index.html's root-relative preview links get the origin.
+    const indexHtml = readFileSync(path.join(staticDir, 'index.html'), 'utf8')
+    const sendIndex = (req: Request, res: Response) => {
+      const host = req.get('host') ?? ''
+      const origin = /^[a-z0-9.-]+(:\d+)?$/i.test(host) ? `${req.protocol}://${host}` : ''
+      res.setHeader('Cache-Control', 'no-cache')
+      res.type('html').send(indexHtml.replace(/(property="og:(?:image|url)"|name="twitter:image") content="\//g, `$1 content="${origin}/`))
+    }
+    app.get(['/', '/index.html'], sendIndex)
     // index.html must be revalidated on every load, or a cached copy keeps pointing at last deploy's
     // bundle. Vite's hashed files under assets/ never change, so they can be kept for good.
     app.use(
       express.static(staticDir, {
-        index: 'index.html',
+        index: false,
         setHeaders: (res, file) => {
-          res.setHeader('Cache-Control', file.endsWith('.html') ? 'no-cache' : file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable' : 'public, max-age=3600')
+          res.setHeader('Cache-Control', file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable' : 'public, max-age=3600')
         },
       }),
     )
     // Hash routing means only "/" is ever requested, but fall back for safety.
-    app.get(/^(?!\/api\/).*/, (_req, res) => {
-      res.setHeader('Cache-Control', 'no-cache')
-      res.sendFile(path.join(staticDir, 'index.html'))
-    })
+    app.get(/^(?!\/api\/).*/, sendIndex)
   }
 
   app.use((err: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {

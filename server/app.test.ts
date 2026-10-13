@@ -28,7 +28,7 @@ describe('serving the app', () => {
   it('revalidates index.html on every load and keeps hashed assets for good', async () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'zenith-dist-'))
     mkdirSync(path.join(dir, 'assets'))
-    writeFileSync(path.join(dir, 'index.html'), '<!doctype html>')
+    writeFileSync(path.join(dir, 'index.html'), '<meta property="og:image" content="/og.png" /><meta name="twitter:image" content="/og.png" />')
     writeFileSync(path.join(dir, 'assets', 'index-abc123.js'), '')
     writeFileSync(path.join(dir, 'favicon.svg'), '<svg/>')
     const server = createApp({ db: {} as Db, staticDir: dir }).listen(0)
@@ -40,6 +40,10 @@ describe('serving the app', () => {
       expect(await cache('/somewhere')).toBe('no-cache')
       expect(await cache('/assets/index-abc123.js')).toBe('public, max-age=31536000, immutable')
       expect(await cache('/favicon.svg')).toBe('public, max-age=3600')
+      // Link previews need the preview image's full address.
+      const html = await (await fetch(base + '/')).text()
+      expect(html).toContain(`property="og:image" content="${base}/og.png"`)
+      expect(html).toContain(`name="twitter:image" content="${base}/og.png"`)
     } finally {
       server.close()
     }
