@@ -5,7 +5,7 @@ import { FlameIcon, TopicIcon } from '../components/Icons'
 import { DAILY_LENGTH, DAILY_ZONE, dailyCategories, dailyNumber, dailyTopic, dailyTopicName, shareText } from '../lib/daily'
 import { DISCOVERIES, dailyStreak } from '../lib/discoveries'
 import { dateKey, fromKey, untilMidnight } from '../lib/dates'
-import { MAX_HEIGHT, MILESTONES, ZONES, formatAltitude } from '../lib/space'
+import { MAX_HEIGHT, ZONES, scoreAt, zoneAt } from '../lib/space'
 import { shareResult } from '../lib/share'
 import { useAppData } from '../lib/store'
 import { TOPICS, topicMeta } from '../lib/topics'
@@ -58,7 +58,7 @@ export function Home() {
           {!done ? (
             <>
               <p className="lead">
-                {DAILY_LENGTH} questions, 20 seconds each. Every right answer lifts you to the next milestone. Get them all to reach the center of the galaxy.
+                {DAILY_LENGTH} questions, 20 seconds each. Harder questions are worth more, for a score out of 1,000, and your score is how far you fly. Get them all to reach the center of the galaxy.
               </p>
               <Link to="/daily" className="btn primary big">
                 {result && result.answers.length > 0 ? `Continue launch (${result.answers.length}/${DAILY_LENGTH})` : 'Launch'}
@@ -67,9 +67,9 @@ export function Home() {
           ) : (
             <>
               <div className="hero-result">
-                <span className="results-altitude">{formatAltitude(result.height)}</span>
+                <span className="results-altitude">{scoreAt(result.height)}</span>
                 <span>
-                  {result.height >= MAX_HEIGHT ? 'Galactic Center!' : result.height > 0 ? MILESTONES[result.height - 1].name : 'Launch pad'} · {result.answers.filter(Boolean).length} of 7 right
+                  of 1,000 · {result.height >= MAX_HEIGHT ? 'Galactic Center!' : result.height > 0 ? zoneAt(result.height).name : 'Launch pad'} · {result.answers.filter(Boolean).length} of 7 right
                 </span>
               </div>
               <div className="squares">

@@ -7,8 +7,8 @@
 /** Zenith #1 is this date. */
 export const EPOCH = '2026-10-09'
 
-/** Points for each daily question, in order: its difficulty, Easy 1 to Expert 5. */
-export const DAILY_POINTS = [1, 1, 2, 3, 3, 4, 5]
+/** Points for each daily question, in order, out of 1,000; harder questions are worth more. */
+export const DAILY_POINTS = [50, 50, 100, 150, 150, 200, 300]
 
 export const MAX_POINTS = DAILY_POINTS.reduce((a, b) => a + b, 0)
 

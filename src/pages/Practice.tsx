@@ -1,7 +1,7 @@
 import { Link, Navigate } from 'react-router-dom'
 import { TopicIcon } from '../components/Icons'
 import { dailyDate, dailyNumber, dailyTopic } from '../lib/daily'
-import { MAX_HEIGHT, formatAltitude } from '../lib/space'
+import { scoreAt } from '../lib/space'
 import { useAppData } from '../lib/store'
 import { MIXED, TOPICS, topicMeta, type PracticeTopic } from '../lib/topics'
 import { useUnlocked } from '../lib/unlock'
@@ -23,14 +23,14 @@ export function Practice() {
       <span className="eyebrow">Practice</span>
       <h1>Pick a topic and launch</h1>
       <p className="lead">
-        You have 3 fuel cells. A miss costs one, and each new zone gives one back. See how far you get toward the Galactic Center, {formatAltitude(MAX_HEIGHT)} away.
+        You have 3 fuel cells. A miss costs one, and each new zone gives one back. Every right answer adds to your score. 1,000 reaches the Galactic Center, and there's no ceiling: keep flying toward Andromeda and beyond.
       </p>
       <div className="topic-grid">
         {[MIXED, ...TOPICS].map((t) => (
           <Link key={t.id} to={`/practice/${t.id}`} className="topic-card">
             <TopicIcon topic={t.id} size={28} />
             <strong>{t.name}</strong>
-            <span className="muted small">{best(t.id) > 0 ? `Best ${formatAltitude(best(t.id))}` : 'Not flown yet'}</span>
+            <span className="muted small">{best(t.id) > 0 ? `Best ${scoreAt(best(t.id))}` : 'Not flown yet'}</span>
           </Link>
         ))}
       </div>
@@ -49,7 +49,7 @@ export function Practice() {
                   <span>
                     <TopicIcon topic={meta.id} size={18} /> #{n} · {meta.name}
                   </span>
-                  <span className="muted small">{mine?.finishedAt ? formatAltitude(mine.height) : 'Missed'}</span>
+                  <span className="muted small">{mine?.finishedAt ? `${scoreAt(mine.height)} pts` : 'Missed'}</span>
                 </Link>
               </li>
             )

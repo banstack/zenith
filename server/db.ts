@@ -59,5 +59,9 @@ export async function migrate(db: Db) {
     -- Launches #1 and #2 were first played as one-topic days, then replaced by
     -- Daily Mix questions. Scores from the old questions don't compare.
     DELETE FROM daily_scores WHERE n <= 2 AND created_at < '2026-10-10T13:30:00Z';
+    -- Scores were out of 19 until the switch to 1,000. Old rows can't be
+    -- converted, so they're left out of comparisons and replaced the next time
+    -- that player sends their answers.
+    ALTER TABLE daily_scores ADD COLUMN IF NOT EXISTS out_of smallint NOT NULL DEFAULT 19;
   `)
 }
