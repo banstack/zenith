@@ -48,7 +48,7 @@ export function Home() {
       <section className="today">
         <div className="today-head">
           <span className="eyebrow">
-            Apogee #{n} · {weekday}
+            Zenith #{n} · {weekday}
           </span>
           <h1 className="topic-title">
             <TopicIcon topic={topic.id} size={30} />
@@ -113,7 +113,7 @@ export function Home() {
           </p>
         </div>
         <Link to={unlocked ? '/practice' : '/unlock'} className="btn primary">
-          {unlocked ? 'Practice' : 'Unlock Apogee'}
+          {unlocked ? 'Practice' : 'Unlock Zenith'}
         </Link>
       </section>
     </div>

@@ -1,7 +1,7 @@
 import type { Difficulty } from '../content/topics/types'
 
 /*
- * Apogee measures height in milestones: 0 is the launch pad and each whole
+ * Zenith measures height in milestones: 0 is the launch pad and each whole
  * number is the next stop on the way to the center of the galaxy. Practice
  * moves in fractions of a milestone; the Daily Launch moves one per right
  * answer. Real distances are only for display (see formatAltitude).

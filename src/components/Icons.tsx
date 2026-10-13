@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { PracticeTopic } from '../lib/topics'
 
 /*
- * Apogee's drawn icons. Topics are line icons; discoveries are filled
+ * Zenith's drawn icons. Topics are line icons; discoveries are filled
  * silhouettes in currentColor, with `cut` shapes (craters, bands) in the
  * background color and `glow` shapes for light sources.
  */

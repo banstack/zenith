@@ -39,7 +39,7 @@ export function Daily() {
   return (
     <DailyRun
       n={n}
-      title={`Apogee #${n} · ${dailyTopicName(n)}`}
+      title={`Zenith #${n} · ${dailyTopicName(n)}`}
       initial={saved.answers}
       onAnswer={(answers) => {
         setPlayedHere(true)

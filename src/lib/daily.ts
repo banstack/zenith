@@ -6,7 +6,7 @@ import { MAX_HEIGHT, ZONES, formatAltitude } from './space'
 import { seeded, shuffle } from './rng'
 import { TOPICS, type PracticeTopic, type TopicId } from './topics'
 
-/** Apogee #1 is this date. */
+/** Zenith #1 is this date. */
 export const EPOCH = '2026-10-09'
 
 export const DAILY_LENGTH = 7
@@ -101,5 +101,5 @@ export function dailyPoints(answers: readonly boolean[]): number {
 /** Wordle-style result to paste into a chat. */
 export function shareText(n: number, answers: readonly boolean[]): string {
   const squares = answers.map((ok, i) => (ok ? ZONES[DAILY_ZONE[i]].square : '⬛')).join('')
-  return `Apogee #${n}\n${squares}  ${dailyPoints(answers)}/${MAX_POINTS} pts · ${formatAltitude(dailyHeight(answers))}`
+  return `Zenith #${n}\n${squares}  ${dailyPoints(answers)}/${MAX_POINTS} pts · ${formatAltitude(dailyHeight(answers))}`
 }

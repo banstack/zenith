@@ -24,7 +24,7 @@ export function Unlock() {
 
   return (
     <div className="page narrow paywall">
-      <span className="eyebrow">Apogee: full game</span>
+      <span className="eyebrow">Zenith: full game</span>
       <h1>Keep flying after today's launch</h1>
       <p className="lead">The Daily Launch is free forever. One purchase unlocks everything else, for good. There's no subscription.</p>
       <ul className="perks">
