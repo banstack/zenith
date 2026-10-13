@@ -13,12 +13,17 @@ interface Props {
   holdKey: number
   /** Small line above the next stop, e.g. "Q3 of 7 · History · Medium". */
   label: string
+  /** A zone just entered; once the ship reaches it, the headline reads "Now entering" this instead of the next stop. */
+  entering?: string | null
 }
 
 const ROCKET = 'M12 1.5c3.5 2.6 5 6.3 5 10.5v5H7v-5c0-4.2 1.5-7.9 5-10.5zM7 13l-3.5 3.5V20L7 18zM17 13l3.5 3.5V20L17 18zM9.5 18h5l-1 4h-3z'
 
 const LABEL_FONT = '600 10.5px "Instrument Sans", system-ui, sans-serif'
 const STOP_FONT = '800 14px "Bricolage Grotesque", system-ui, sans-serif'
+const ENTERING_LABEL_FONT = '700 10.5px "Instrument Sans", system-ui, sans-serif'
+const ENTERING_FONT = '800 18px "Bricolage Grotesque", system-ui, sans-serif'
+const SWEEP_SECONDS = 0.45
 
 const STARS = (() => {
   const rand = seeded('flight-window')
@@ -81,11 +86,11 @@ function drawStop(ctx: CanvasRenderingContext2D, m: number, x: number, y: number
  * the engine and flies it past the next stop while the stars streak; a miss
  * makes the engine sputter and the ship hold its place.
  */
-export function FlightWindow({ height, target, holdKey, label }: Props) {
+export function FlightWindow({ height, target, holdKey, label, entering = null }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const props = useRef({ height, target, holdKey, label })
+  const props = useRef({ height, target, holdKey, label, entering })
   useEffect(() => {
-    props.current = { height, target, holdKey, label }
+    props.current = { height, target, holdKey, label, entering }
   })
 
   useEffect(() => {
@@ -101,6 +106,8 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
     let target = props.current.target
     let holdKey = props.current.holdKey
     let anim: { kind: 'climb' | 'hold'; t0: number; from: number; to: number } | null = null
+    let zoneShown = zoneIndexAt(props.current.height)
+    let sweep: { t0: number; from: string } | null = null
 
     const frame = (now: number) => {
       const p = props.current
@@ -130,19 +137,38 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
       shownBefore = h
       const z = zoneIndexAt(h)
       offset += dH * 2.4 + (still ? 0 : dt * 0.03)
+      if (z > zoneShown && !still) sweep = { t0: t, from: ZONES[zoneShown].color }
+      zoneShown = z
 
       // Sky: the zone's flat color, a shade lighter so the band reads against the page.
+      // Crossing into a new zone, its color sweeps down past the ship with a thin white edge.
       ctx.fillStyle = ZONES[z].color
       ctx.fillRect(0, 0, W, H)
+      if (sweep) {
+        const u = (t - sweep.t0) / SWEEP_SECONDS
+        if (u >= 1) sweep = null
+        else {
+          const edge = (1 - Math.pow(1 - u, 3)) * H
+          ctx.fillStyle = sweep.from
+          ctx.fillRect(0, edge, W, H - edge)
+          ctx.fillStyle = 'rgb(255 255 255 / 0.85)'
+          ctx.fillRect(0, edge - 1, W, 2)
+        }
+      }
       ctx.fillStyle = 'rgb(255 255 255 / 0.08)'
       ctx.fillRect(0, 0, W, H)
 
       // The text in the top left, measured first so stars stay out from behind it.
+      // Once the ship is inside a zone just entered, the headline announces it until Next is pressed.
       const top = h >= MAX_HEIGHT - 1e-6
-      const stop = top ? 'Galactic Center reached' : `Next stop: ${MILESTONES[Math.min(MAX_HEIGHT - 1, Math.floor(h + 1e-6))].name}`
-      ctx.font = LABEL_FONT
-      const labelW = ctx.measureText(p.label).width
-      ctx.font = STOP_FONT
+      const entering = p.entering !== null && ZONES[z].name === p.entering && !sweep
+      const label = entering ? 'NOW ENTERING' : p.label
+      const labelFont = entering ? ENTERING_LABEL_FONT : LABEL_FONT
+      const stop = entering ? ZONES[z].name : top ? 'Galactic Center reached' : `Next stop: ${MILESTONES[Math.min(MAX_HEIGHT - 1, Math.floor(h + 1e-6))].name}`
+      const stopFont = entering ? ENTERING_FONT : STOP_FONT
+      ctx.font = labelFont
+      const labelW = ctx.measureText(label).width
+      ctx.font = stopFont
       const textRight = 12 + Math.max(labelW, ctx.measureText(stop).width) + 6
 
       // Stars, more of them farther out; they streak while you climb.
@@ -153,7 +179,7 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
         const y = ((((s.y + offset * s.depth) % 1) + 1) % 1) * (H + 20) - 10
         const size = s.big ? 2.4 : 1.4
         const len = Math.max(size, Math.min(36, streak * s.depth))
-        if (s.x * W < textRight && y - len < 44) continue
+        if (s.x * W < textRight && y - len < 46) continue
         ctx.globalAlpha = s.o
         ctx.fillRect(s.x * W, y - len, size, len)
       }
@@ -176,12 +202,12 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
       }
 
       // Label and next stop, top left.
-      ctx.font = LABEL_FONT
-      ctx.fillStyle = 'rgb(255 255 255 / 0.8)'
-      ctx.fillText(p.label, 12, 19)
-      ctx.font = STOP_FONT
+      ctx.font = labelFont
+      ctx.fillStyle = entering ? '#ffb627' : 'rgb(255 255 255 / 0.8)'
+      ctx.fillText(label, 12, 19)
+      ctx.font = stopFont
       ctx.fillStyle = '#fff'
-      ctx.fillText(stop, 12, 37)
+      ctx.fillText(stop, 12, entering ? 39 : 37)
 
       // The ship: a steady flicker at rest, a long burn on a climb, a sputter and a dip on a miss.
       let lift = 0
