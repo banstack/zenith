@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { DISCOVERIES } from '../lib/discoveries'
 import { seeded } from '../lib/rng'
-import { ZONES, formatAltitude, heightScale, zoneAt, zoneIndexAt } from '../lib/space'
+import { ZONES, heightScale, scoreAt, zoneAt, zoneIndexAt } from '../lib/space'
 import { DiscoveryIcon, RocketIcon } from './Icons'
 
 /** Star positions per zone: more of them the farther from Earth you get. */
@@ -38,7 +38,7 @@ const gaugePos = (h: number) => (1 - heightScale(h)) * 100
 /** Vertical altitude gauge: the zones as flat bands, Earth at the bottom, with a rocket at your height. */
 export function AltitudeGauge({ height }: { height: number }) {
   return (
-    <div className="gauge" role="img" aria-label={`Altitude ${formatAltitude(height)}, ${zoneAt(height).name}`}>
+    <div className="gauge" role="img" aria-label={`${scoreAt(height)} points, ${zoneAt(height).name}`}>
       {ZONES.map((z) => (
         <span key={z.id} className="gauge-band" style={{ top: `${gaugePos(z.to)}%`, height: `${gaugePos(z.from) - gaugePos(z.to)}%`, background: z.color }} title={z.name} />
       ))}

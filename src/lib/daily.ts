@@ -2,7 +2,7 @@ import { picturePool, type PictureKind } from '../content/pictures'
 import { ask, pool, type AskedQuestion } from '../content/questions'
 import type { Difficulty } from '../content/topics/types'
 import { addDays, dateKey, daysBetween } from './dates'
-import { MAX_HEIGHT, ZONES, formatAltitude } from './space'
+import { MAX_SCORE, STOP_SCORES, ZONES, formatScore, scoreToHeight } from './space'
 import { seeded, shuffle } from './rng'
 import { TOPICS, type PracticeTopic, type TopicId } from './topics'
 
@@ -84,22 +84,26 @@ export function dailyQuestions(n: number): AskedQuestion[] {
   })
 }
 
-/** Each right answer climbs one milestone, so seven reach the Galactic Center. */
-export function dailyHeight(answers: readonly boolean[]): number {
-  return Math.min(MAX_HEIGHT, answers.filter(Boolean).length)
-}
+/**
+ * Points for each question, out of 1,000 for the launch. Harder questions are
+ * worth more, and each one is the gap between two stops, so getting every
+ * question right lands on each stop in turn.
+ */
+export const DAILY_POINTS: readonly number[] = STOP_SCORES.slice(1).map((s, i) => s - STOP_SCORES[i])
 
-/** Each right answer scores its difficulty in points (Easy 1 to Expert 5), so the Expert question is worth five Easy ones. */
-export const DAILY_POINTS: readonly number[] = DAILY_DIFFICULTY
-
-export const MAX_POINTS = DAILY_POINTS.reduce((a, b) => a + b, 0)
+export const MAX_POINTS = MAX_SCORE
 
 export function dailyPoints(answers: readonly boolean[]): number {
   return answers.reduce((sum, ok, i) => sum + (ok ? DAILY_POINTS[i] : 0), 0)
 }
 
+/** The ship climbs by score: a miss on an Easy question costs a little height, a miss on the Expert one costs a lot. */
+export function dailyHeight(answers: readonly boolean[]): number {
+  return scoreToHeight(dailyPoints(answers))
+}
+
 /** Wordle-style result to paste into a chat. */
 export function shareText(n: number, answers: readonly boolean[]): string {
   const squares = answers.map((ok, i) => (ok ? ZONES[DAILY_ZONE[i]].square : '⬛')).join('')
-  return `Zenith #${n}\n${squares}  ${dailyPoints(answers)}/${MAX_POINTS} pts · ${formatAltitude(dailyHeight(answers))}`
+  return `Zenith #${n}\n${squares}  ${formatScore(dailyPoints(answers))}/${formatScore(MAX_POINTS)}`
 }

@@ -4,7 +4,7 @@ import { Avatar } from '../components/Avatar'
 import { DiscoveryIcon, TopicIcon } from '../components/Icons'
 import { DISCOVERIES, dailyStreak, longestDailyStreak } from '../lib/discoveries'
 import { addDays, dateKey, fromKey } from '../lib/dates'
-import { MAX_HEIGHT, ZONES, formatAltitude, zoneAt } from '../lib/space'
+import { MAX_HEIGHT, ZONES, scoreAt, zoneAt } from '../lib/space'
 import { setSoundOn, useSoundOn } from '../lib/sound'
 import { resetAll, setProfileName, useAppData } from '../lib/store'
 import { MIXED, TOPICS } from '../lib/topics'
@@ -24,7 +24,7 @@ export function StarChart() {
     { label: 'longest streak', value: String(longestDailyStreak(data)) },
     { label: 'daily launches', value: String(finished.length) },
     { label: 'perfect launches', value: String(perfect) },
-    { label: 'farthest', value: formatAltitude(highest) },
+    { label: 'best score', value: scoreAt(highest) },
     { label: 'practice flights', value: String(data.practice.length) },
   ]
 
@@ -92,7 +92,7 @@ export function StarChart() {
                   <span className="with-icon">
                     <TopicIcon topic={t.id} size={18} /> {t.name}
                   </span>
-                  <span className="muted">{best ? formatAltitude(best) : '—'}</span>
+                  <span className="muted">{best ? scoreAt(best) : '—'}</span>
                 </li>
               )
             })}
@@ -118,8 +118,8 @@ function LaunchCalendar({ daily }: { daily: ReturnType<typeof useAppData>['daily
       {days.map((d) => {
         const r = daily[d]
         const future = d > today
-        const cls = future ? 'future' : !r?.finishedAt ? 'empty' : r.height === 0 ? 'grounded' : `z-${zoneAt(r.height - 1).id}`
-        const label = `${fromKey(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${r?.finishedAt ? formatAltitude(r.height) : 'no launch'}`
+        const cls = future ? 'future' : !r?.finishedAt ? 'empty' : r.height === 0 ? 'grounded' : `z-${zoneAt(r.height - 1e-6).id}`
+        const label = `${fromKey(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${r?.finishedAt ? `${scoreAt(r.height)} points` : 'no launch'}`
         return <span key={d} role="listitem" className={`cal-day ${cls} ${d === today ? 'today' : ''}`} title={label} aria-label={label} />
       })}
     </div>

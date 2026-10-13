@@ -4,7 +4,7 @@ import { FlightFrame, FuelCells } from '../components/FlightHud'
 import { TopicIcon } from '../components/Icons'
 import { Round } from '../components/Round'
 import type { AskedQuestion } from '../content/questions'
-import { DIFFICULTY_NAMES, MAX_HEIGHT, ZONES, formatAltitude, milestoneAt, zoneAt } from '../lib/space'
+import { DIFFICULTY_NAMES, MAX_HEIGHT, ZONES, heightToScore, milestoneAt, scoreAt, zoneAt } from '../lib/space'
 import { MAX_FUEL, answerPractice, nextPracticeQuestion, startPractice, streakBonus, type PracticeState } from '../lib/practice'
 import { play } from '../lib/sound'
 import { addPractice } from '../lib/store'
@@ -64,7 +64,7 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
       setBanner(ZONES[step.enteredZone].name)
     }
     const bonus = streakBonus(step.state.streak)
-    setOutcome(correct ? `Up to ${formatAltitude(step.state.height)}${bonus > 1 ? ` · ${step.state.streak} in a row` : ''}` : step.state.over ? 'Out of fuel' : '−1 fuel cell')
+    setOutcome(correct ? `+${heightToScore(step.state.height) - heightToScore(step.state.height - step.gained)} points${bonus > 1 ? ` · ${step.state.streak} in a row` : ''}` : step.state.over ? 'Out of fuel' : '−1 fuel cell')
     if (step.state.over) save(step.state, step.state.over)
   }
 
@@ -93,7 +93,10 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
         <span className="eyebrow with-icon">
           <TopicIcon topic={topic} size={16} /> Practice · {meta.name}
         </span>
-        <div className="results-altitude">{formatAltitude(s.height)}</div>
+        <div className="results-score">
+          <span className="results-altitude">{scoreAt(s.height)}</span>
+          <span className="results-max">/ 1,000</span>
+        </div>
         <p className="lead">
           {s.height >= MAX_HEIGHT ? 'You reached the center of the galaxy!' : milestoneAt(s.height) ? `You made it past ${milestoneAt(s.height)!.name}, into ${zoneAt(s.height).name}.` : 'You stayed close to Earth.'}
         </p>

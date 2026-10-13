@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { DAILY_ZONE, MAX_POINTS, dailyCategories, dailyHeight, dailyPoints, dailyQuestions, dailyTopicName, shareText } from '../lib/daily'
-import { MILESTONES, ZONES, formatAltitude } from '../lib/space'
+import { MAX_HEIGHT, ZONES, formatScore, milestoneAt, zoneAt } from '../lib/space'
 import { ClimbProfile } from './ClimbCharts'
 import { SaveStreakCard } from './SaveStreakCard'
 import { TopicIcon } from './Icons'
@@ -17,7 +17,7 @@ interface Props {
   children?: React.ReactNode
 }
 
-/** End-of-launch summary: altitude, points and how they compare, the share grid, and each question with its answer. */
+/** End-of-launch summary: the score and how it compares, the share grid, and each question with its answer. */
 export function DailyResults({ n, topic, answers, record = false, children }: Props) {
   const height = dailyHeight(answers)
   const questions = useMemo(() => dailyQuestions(n), [n])
@@ -37,13 +37,13 @@ export function DailyResults({ n, topic, answers, record = false, children }: Pr
       <span className="eyebrow with-icon">
         <TopicIcon topic={topic} size={16} /> Zenith #{n} · {dailyTopicName(n)}
       </span>
-      <div className="results-altitude">{formatAltitude(height)}</div>
+      <div className="results-score">
+        <span className="results-altitude">{formatScore(points)}</span>
+        <span className="results-max">/ {formatScore(MAX_POINTS)}</span>
+      </div>
       <p className="lead">
-        {right === 7 ? 'You reached the center of the galaxy!' : height === 0 ? 'You stayed on the launch pad today.' : `You reached ${MILESTONES[height - 1].name}.`}{' '}
+        {height >= MAX_HEIGHT ? 'You reached the center of the galaxy!' : height === 0 ? 'You stayed on the launch pad today.' : `You made it to ${zoneAt(height).name}${milestoneAt(height) ? `, past ${milestoneAt(height)!.name}` : ''}.`}{' '}
         {right} of 7 right.
-      </p>
-      <p className="results-points">
-        <strong>{points}</strong> of {MAX_POINTS} points
       </p>
       {standing && <p className="standing">{standingText(standing, record)}</p>}
       <div className="squares" aria-label={`${right} of 7 right`}>

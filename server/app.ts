@@ -210,7 +210,7 @@ export function createApp({ db, staticDir, secureCookies = false, authLimit = 20
   /** How many players finished launch n with each score, from 0 to MAX_POINTS. */
   const scoreCounts = async (n: number) => {
     const counts = Array<number>(MAX_POINTS + 1).fill(0)
-    const { rows } = await db.query<{ score: number; players: number }>('SELECT score, count(*)::int AS players FROM daily_scores WHERE n = $1 GROUP BY score', [n])
+    const { rows } = await db.query<{ score: number; players: number }>('SELECT score, count(*)::int AS players FROM daily_scores WHERE n = $1 AND out_of = $2 GROUP BY score', [n, MAX_POINTS])
     for (const r of rows) counts[r.score] = r.players
     return counts
   }
@@ -250,7 +250,12 @@ export function createApp({ db, staticDir, secureCookies = false, authLimit = 20
     }
     const user = await userForSession(db, readCookie(req, COOKIE))
     const key = user ? `u:${user.id}` : player
-    await db.query('INSERT INTO daily_scores (n, player, score) VALUES ($1, $2, $3) ON CONFLICT (n, player) DO NOTHING', [n, key, pointsFor(answers)])
+    // A score from the old 19-point scale is swapped for this one; otherwise the first score stands.
+    await db.query(
+      `INSERT INTO daily_scores (n, player, score, out_of) VALUES ($1, $2, $3, $4)
+       ON CONFLICT (n, player) DO UPDATE SET score = EXCLUDED.score, out_of = EXCLUDED.out_of WHERE daily_scores.out_of <> EXCLUDED.out_of`,
+      [n, key, pointsFor(answers), MAX_POINTS],
+    )
     const { rows } = await db.query<{ score: number }>('SELECT score FROM daily_scores WHERE n = $1 AND player = $2', [n, key])
     res.json({ counts: await scoreCounts(n), max: MAX_POINTS, score: rows[0].score })
   })

@@ -1,4 +1,5 @@
 import type { AppData, PracticeRecord } from '../types'
+import { dailyHeight } from './daily'
 import { newlyFound } from './discoveries'
 
 export function emptyData(now = Date.now()): AppData {
@@ -59,6 +60,11 @@ export function migrate(saved: unknown, now = Date.now()): AppData {
   data.discoveries = { ...data.discoveries, ...newlyFound(data, now) }
   // Launches from before Daily Mix had one topic and other questions, so their results no longer line up.
   // Discoveries they earned are kept.
-  data.daily = Object.fromEntries(Object.entries(data.daily).filter(([, r]) => r.topic === 'mixed'))
+  // Heights follow the score, which has changed since some launches were saved, so work them out again from the answers.
+  data.daily = Object.fromEntries(
+    Object.entries(data.daily)
+      .filter(([, r]) => r.topic === 'mixed')
+      .map(([date, r]) => [date, { ...r, height: dailyHeight(r.answers) }]),
+  )
   return data
 }

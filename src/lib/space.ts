@@ -82,6 +82,35 @@ export function formatAltitude(height: number): string {
   return `${fmt(km / LY)} ly`
 }
 
+/**
+ * The score for reaching each height, 0 to 1,000. It's the one number players
+ * compare: the ship climbs by score, so the zone you end in is your score band.
+ * Each daily question is worth the gap between two stops (see DAILY_POINTS).
+ */
+export const STOP_SCORES = [0, 50, 100, 200, 350, 500, 700, 1000] as const
+
+export const MAX_SCORE = STOP_SCORES[MAX_HEIGHT]
+
+/** Score for a height, straight-line between stops. */
+export function heightToScore(height: number): number {
+  const h = Math.min(MAX_HEIGHT, Math.max(0, height))
+  const i = Math.min(MAX_HEIGHT - 1, Math.floor(h))
+  return Math.round(STOP_SCORES[i] + (STOP_SCORES[i + 1] - STOP_SCORES[i]) * (h - i))
+}
+
+/** Height for a score, the inverse of heightToScore. */
+export function scoreToHeight(score: number): number {
+  const s = Math.min(MAX_SCORE, Math.max(0, score))
+  const i = STOP_SCORES.findIndex((v, k) => k > 0 && s <= v) - 1
+  return i + (s - STOP_SCORES[i]) / (STOP_SCORES[i + 1] - STOP_SCORES[i])
+}
+
+/** "720", "1,000". */
+export const formatScore = (score: number) => Math.round(score).toLocaleString('en-US')
+
+/** A height shown as its score. */
+export const scoreAt = (height: number) => formatScore(heightToScore(height))
+
 /** 0–1 position for a height on the ladder and gauge. */
 export const heightScale = (h: number) => Math.min(1, Math.max(0, h) / MAX_HEIGHT)
 

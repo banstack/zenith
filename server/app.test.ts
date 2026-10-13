@@ -159,23 +159,34 @@ describe.skipIf(!url)('API', () => {
 
     const first = await post(anon, 'a'.repeat(32), [true, true, true, true, true, true, false])
     expect(first.status).toBe(200)
-    expect(first.body.score).toBe(14)
-    expect(first.body.counts).toHaveLength(20)
-    expect(first.body.counts[14]).toBe(1)
+    expect(first.body.score).toBe(700)
+    expect(first.body.counts).toHaveLength(1001)
+    expect(first.body.counts[700]).toBe(1)
 
     // The first result is final.
     const again = await post(anon, 'a'.repeat(32), all)
-    expect(again.body.score).toBe(14)
-    expect(again.body.counts[19]).toBe(0)
+    expect(again.body.score).toBe(700)
+    expect(again.body.counts[1000]).toBe(0)
 
     // A signed-in player counts once, whichever browser id they send.
     const user = client()
     await user('POST', '/auth/signup', { email: 'sc@example.com', password: 'longenough' })
     await post(user, 'b'.repeat(32), all)
-    expect((await post(user, 'c'.repeat(32), [false, false, false, false, false, false, false])).body.score).toBe(19)
+    expect((await post(user, 'c'.repeat(32), [false, false, false, false, false, false, false])).body.score).toBe(1000)
 
     const read = await anon('GET', `/daily/${n}/scores`)
-    expect(read.body.counts[14] + read.body.counts[19]).toBe(2)
+    expect(read.body.counts[700] + read.body.counts[1000]).toBe(2)
+  })
+
+  it('replaces a score from the old 19-point scale and leaves it out of comparisons', async () => {
+    await db.query('TRUNCATE daily_scores')
+    const n = utcDailyNumber()
+    await db.query("INSERT INTO daily_scores (n, player, score) VALUES ($1, $2, 14), ($1, $3, 19)", [n, 'd'.repeat(32), 'e'.repeat(32)])
+    const c = client()
+    expect((await c('GET', `/daily/${n}/scores`)).body.counts.reduce((a: number, b: number) => a + b, 0)).toBe(0)
+    const res = await c('POST', `/daily/${n}/scores`, { player: 'd'.repeat(32), answers: [true, true, true, true, true, true, false] })
+    expect(res.body.score).toBe(700)
+    expect(res.body.counts.reduce((a: number, b: number) => a + b, 0)).toBe(1)
   })
 
   it('only scores the current launch, with well-formed answers', async () => {

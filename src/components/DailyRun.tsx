@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
-import { DAILY_LENGTH, DAILY_ZONE, dailyCategories, dailyHeight, dailyQuestions } from '../lib/daily'
-import { DIFFICULTY_NAMES, MILESTONES, ZONES, formatAltitude, zoneIndexAt } from '../lib/space'
+import { DAILY_LENGTH, DAILY_POINTS, DAILY_ZONE, dailyCategories, dailyHeight, dailyQuestions } from '../lib/daily'
+import { DIFFICULTY_NAMES, ZONES, zoneAt, zoneIndexAt } from '../lib/space'
 import { play } from '../lib/sound'
 import { FlightFrame, ProgressDots } from './FlightHud'
 import { Round } from './Round'
@@ -59,7 +59,7 @@ export function DailyRun({ n, title, initial, onAnswer, onFinish, exitTo = '/' }
   }
 
   const zoneOf = (i: number) => ZONES[DAILY_ZONE[i]].id
-  const label = `Q${index + 1} of ${DAILY_LENGTH} · ${categories[index].name} · ${DIFFICULTY_NAMES[questions[index].question.difficulty]}`
+  const label = `Q${index + 1} of ${DAILY_LENGTH} · ${categories[index].name} · ${DIFFICULTY_NAMES[questions[index].question.difficulty]} · ${DAILY_POINTS[index]} pts`
   return (
     <FlightFrame
       height={height}
@@ -77,7 +77,7 @@ export function DailyRun({ n, title, initial, onAnswer, onFinish, exitTo = '/' }
         onAnswered={handleAnswer}
         onNext={next}
         nextLabel={index + 1 >= DAILY_LENGTH ? 'See results' : 'Next question'}
-        outcome={answered ? (answers[index] ? `Up to ${MILESTONES[height - 1].name}, ${formatAltitude(height)}` : 'No climb this time') : null}
+        outcome={answered ? (answers[index] ? `+${DAILY_POINTS[index]} points · ${zoneAt(height).name}` : 'No climb this time') : null}
       />
     </FlightFrame>
   )
