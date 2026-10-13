@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { DAILY_ZONE, MAX_POINTS, dailyCategories, dailyHeight, dailyPoints, dailyQuestions, dailyTopicName, shareText } from '../lib/daily'
 import { MILESTONES, ZONES, formatAltitude } from '../lib/space'
 import { ClimbProfile } from './ClimbCharts'
+import { SaveStreakCard } from './SaveStreakCard'
 import { TopicIcon } from './Icons'
 import { shareResult } from '../lib/share'
 import { standingText, useStanding } from '../lib/standing'
@@ -57,6 +58,7 @@ export function DailyResults({ n, topic, answers, record = false, children }: Pr
         </button>
         {children}
       </div>
+      {record && <SaveStreakCard />}
       <ol className="review">
         {questions.map((q, i) => (
           <li key={q.question.id} className={answers[i] ? 'good' : 'bad'}>

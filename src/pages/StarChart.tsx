@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AccountPanel } from '../components/AccountPanel'
+import { AccountStatus } from '../components/AccountPanel'
 import { Avatar } from '../components/Avatar'
 import { DiscoveryIcon, TopicIcon } from '../components/Icons'
 import { DISCOVERIES, dailyStreak, longestDailyStreak } from '../lib/discoveries'
@@ -32,12 +32,13 @@ export function StarChart() {
     <div className="page star-chart">
       <section className="panel profile-header">
         <Avatar name={data.profile.name} size="lg" />
-        <div>
+        <div className="profile-info">
           <NameEditor name={data.profile.name} />
           <p className="muted">
             Flying since {new Date(data.profile.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
         </div>
+        <AccountStatus />
       </section>
 
       <section className="tiles">
@@ -98,8 +99,6 @@ export function StarChart() {
           </ul>
         </section>
       )}
-
-      <AccountPanel />
 
       <section className="panel settings">
         <h2>Settings</h2>

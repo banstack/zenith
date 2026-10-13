@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { logIn, logOut, signUp, useSync, type SyncState } from '../lib/sync'
+import { openSignIn } from '../lib/signIn'
 
 function statusText(s: SyncState): string {
   switch (s.status) {
@@ -16,40 +17,54 @@ function statusText(s: SyncState): string {
   }
 }
 
-/** Sign up / log in to sync progress across devices. Hidden when there's no server. */
-export function AccountPanel() {
+/**
+ * The account part of the Star chart header: who you're signed in as and
+ * whether progress is synced, or a prompt to sign in. Hidden when there's no server.
+ */
+export function AccountStatus() {
   const sync = useSync()
-  if (sync.available === false) return null
+  if (!sync.available) return null
+
+  if (!sync.user) {
+    return (
+      <div className="account-status">
+        <p className="sync-status">
+          <span className="sync-dot" aria-hidden /> Guest pilot. Your progress is saved in this browser only.
+        </p>
+        <button className="btn primary" onClick={() => openSignIn()}>
+          Sign in to keep your progress
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <section className="panel account-panel">
-      <h2>Account & sync</h2>
-      {sync.available === null ? (
-        <p className="muted">Checking…</p>
-      ) : sync.user ? (
-        <div className="account-signed-in">
-          <div>
-            <p>
-              Signed in as <strong>{sync.user.email}</strong>
-            </p>
-            <p className={`sync-status ${sync.status}`} role="status">
-              <span className="sync-dot" aria-hidden /> {statusText(sync)}
-            </p>
-          </div>
-          <button className="btn ghost" onClick={() => void logOut()}>
-            Log out
-          </button>
-        </div>
-      ) : (
-        <AuthForm />
-      )}
-    </section>
+    <div className="account-status signed-in">
+      <div>
+        <p>
+          Signed in as <strong>{sync.user.email}</strong>
+        </p>
+        <p className={`sync-status ${sync.status}`} role="status">
+          <span className="sync-dot" aria-hidden /> {statusText(sync)}
+        </p>
+      </div>
+      <button className="btn ghost small" onClick={() => void logOut()}>
+        Log out
+      </button>
+    </div>
   )
 }
 
-function AuthForm() {
-  const [mode, setMode] = useState<'login' | 'signup'>('signup')
-  const [email, setEmail] = useState('')
+interface AuthFormProps {
+  initialEmail?: string
+  initialMode?: 'login' | 'signup'
+  onModeChange?: (mode: 'login' | 'signup') => void
+  onSuccess?: (email: string) => void
+}
+
+export function AuthForm({ initialEmail = '', initialMode = 'signup', onModeChange, onSuccess }: AuthFormProps) {
+  const [mode, setMode] = useState(initialMode)
+  const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -61,19 +76,29 @@ function AuthForm() {
     const err = await (mode === 'signup' ? signUp : logIn)(email, password)
     setBusy(false)
     if (err) setError(err)
+    else onSuccess?.(email)
+  }
+
+  const switchMode = () => {
+    const next = mode === 'signup' ? 'login' : 'signup'
+    setMode(next)
+    setError(null)
+    onModeChange?.(next)
   }
 
   return (
     <form className="auth-form" onSubmit={submit}>
-      <p className="muted">
-        {mode === 'signup'
-          ? 'Create an account to keep your progress in sync across devices. Everything you have on this device comes with you.'
-          : 'Log in to sync this device with your account. Progress here is merged in, so nothing is lost.'}
-      </p>
       <div className="auth-fields">
         <label>
           <span>Email</span>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            autoFocus={!initialEmail}
+            required
+          />
         </label>
         <label>
           <span>Password</span>
@@ -82,6 +107,8 @@ function AuthForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            autoFocus={!!initialEmail}
+            placeholder={mode === 'signup' ? 'At least 8 characters' : undefined}
             minLength={mode === 'signup' ? 8 : undefined}
             required
           />
@@ -92,21 +119,12 @@ function AuthForm() {
           {error}
         </p>
       )}
-      <div className="row">
-        <button className="btn primary" type="submit" disabled={busy}>
-          {busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Log in'}
-        </button>
-        <button
-          type="button"
-          className="link-btn"
-          onClick={() => {
-            setMode(mode === 'signup' ? 'login' : 'signup')
-            setError(null)
-          }}
-        >
-          {mode === 'signup' ? 'Already have an account? Log in' : 'New here? Create an account'}
-        </button>
-      </div>
+      <button className="btn primary" type="submit" disabled={busy}>
+        {busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Log in'}
+      </button>
+      <button type="button" className="link-btn" onClick={switchMode}>
+        {mode === 'signup' ? 'Already have an account? Log in' : 'New here? Create an account'}
+      </button>
     </form>
   )
 }
