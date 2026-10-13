@@ -60,7 +60,7 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
     stateRef.current = step.state
     setState(step.state)
     if (step.enteredZone !== null) {
-      play('levelUp')
+      play('levelUp', { zone: step.enteredZone })
       setBanner(ZONES[step.enteredZone].name)
     }
     const bonus = streakBonus(step.state.streak)
@@ -72,7 +72,8 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
     setBanner(null)
     setOutcome(null)
     if (stateRef.current.over) {
-      play('complete')
+      const s = stateRef.current
+      play('complete', { score: Math.max(1, Math.round((s.height / MAX_HEIGHT) * 7)) })
       setFinished(true)
       return
     }
@@ -121,11 +122,16 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
   }
 
   return (
-    <FlightFrame height={state.height} title={`Practice · ${meta.name}`} status={<FuelCells fuel={state.fuel} max={MAX_FUEL} />} banner={banner} exitTo="/practice">
-      <p className="question-meta">
-        {DIFFICULTY_NAMES[zoneAt(state.height).difficulty]} questions{state.streak >= 3 ? ` · ${state.streak} in a row, climbing ${Math.round((streakBonus(state.streak) - 1) * 100)}% faster` : ''}
-      </p>
-      <Round key={count} asked={asked} onAnswered={handleAnswer} onNext={next} nextLabel={state.over ? 'See results' : 'Next question'} outcome={outcome} />
+    <FlightFrame
+      height={state.height}
+      title={`Practice · ${meta.name}`}
+      status={<FuelCells fuel={state.fuel} max={MAX_FUEL} />}
+      label={`${DIFFICULTY_NAMES[zoneAt(state.height).difficulty]}${state.streak >= 3 ? ` · ${state.streak} in a row, ${Math.round((streakBonus(state.streak) - 1) * 100)}% faster` : ''}`}
+      holdKey={state.answered - state.correct}
+      banner={banner}
+      exitTo="/practice"
+    >
+      <Round key={count} asked={asked} streak={state.streak} onAnswered={handleAnswer} onNext={next} nextLabel={state.over ? 'See results' : 'Next question'} outcome={outcome} />
       {!state.over && (
         <button className="link-btn land-btn" onClick={land}>
           Land and end flight

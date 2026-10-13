@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { DISCOVERIES } from '../lib/discoveries'
 import { seeded } from '../lib/rng'
 import { ZONES, formatAltitude, heightScale, zoneAt, zoneIndexAt } from '../lib/space'
@@ -11,11 +12,16 @@ const STARS = ZONES.map((z, i) => {
 
 /** The sky behind a flight: one flat color per zone, stepping darker as you climb, with stars and the zone's discoveries drifting past. */
 export function Sky({ height }: { height: number }) {
-  const zone = zoneAt(height)
+  return <ZoneSky index={zoneIndexAt(height)} />
+}
+
+// The height rolls every frame during a climb; the sky only changes with the zone.
+const ZoneSky = memo(function ZoneSky({ index }: { index: number }) {
+  const zone = ZONES[index]
   const drifters = DISCOVERIES.filter((c) => c.zone === zone.id)
   return (
     <div className={`sky zone-${zone.id}`} style={{ background: zone.color }} aria-hidden>
-      {STARS[zoneIndexAt(height)].map((s, i) => (
+      {STARS[index].map((s, i) => (
         <i key={i} className={`star ${s.big ? 'big' : ''}`} style={{ left: `${s.x}%`, top: `${s.y}%`, opacity: s.o }} />
       ))}
       {drifters.map((c, i) => (
@@ -25,7 +31,7 @@ export function Sky({ height }: { height: number }) {
       ))}
     </div>
   )
-}
+})
 
 const gaugePos = (h: number) => (1 - heightScale(h)) * 100
 
