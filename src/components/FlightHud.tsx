@@ -14,6 +14,7 @@ interface FrameProps {
   label: string
   /** Changes on every miss, so the ship plays its hold. */
   holdKey: number
+  /** A zone just entered; the flight window announces it once the ship gets there. */
   banner?: string | null
   exitTo: string
   children: ReactNode
@@ -21,7 +22,7 @@ interface FrameProps {
 
 /**
  * The frame around a flight: sky, gauge, altitude readout, a slot for progress (dots or fuel cells),
- * and the flight window where the ship climbs or holds after each answer.
+ * and the flight window where the ship climbs or holds after each answer and announces a new zone.
  * On phones the site header hides and this HUD folds into one row, with `exitTo` as the way out.
  */
 export function FlightFrame({ height: target, title, status, label, holdKey, banner, exitTo, children }: FrameProps) {
@@ -50,13 +51,12 @@ export function FlightFrame({ height: target, title, status, label, holdKey, ban
           <SoundToggle />
         </div>
       </header>
-      {banner && (
-        <div className="zone-banner" role="status" key={banner}>
-          Entering {banner}
-        </div>
-      )}
       <div className="flight-body">
-        <FlightWindow height={height} target={target} holdKey={holdKey} label={label} />
+        {/* The window shows the zone entry on screen; this tells screen readers. */}
+        <div className="sr-only" role="status">
+          {banner ? `Entering ${banner}` : ''}
+        </div>
+        <FlightWindow height={height} target={target} holdKey={holdKey} label={label} entering={banner} />
         {children}
       </div>
     </div>
