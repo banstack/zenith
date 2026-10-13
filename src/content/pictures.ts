@@ -47,7 +47,7 @@ function wrongAnswers(country: CountryRow, kind: PictureKind, rand: () => number
 }
 
 function build(country: CountryRow, kind: PictureKind): TriviaQuestion {
-  const [code, name] = country
+  const [code, name, , , , since] = country
   const id = `geography-${kind}-${code}`
   const [a, b, c] = wrongAnswers(country, kind, seeded(id))
   return {
@@ -57,6 +57,7 @@ function build(country: CountryRow, kind: PictureKind): TriviaQuestion {
     prompt: PICTURE_PROMPTS[kind],
     answers: [name, a, b, c],
     image: { kind, src: geoAsset(kind, code), alt: PICTURE_ALT[kind] },
+    ...(since && { since }),
   }
 }
 

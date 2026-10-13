@@ -1,5 +1,5 @@
 import { picturePool, type PictureKind } from '../content/pictures'
-import { ask, pool, type AskedQuestion } from '../content/questions'
+import { ask, pool, type AskedQuestion, type TriviaQuestion } from '../content/questions'
 import type { Difficulty } from '../content/topics/types'
 import { addDays, dateKey, daysBetween } from './dates'
 import { MAX_SCORE, STOP_SCORES, ZONES, formatScore, heightToScore, scoreToHeight, zoneIndexAt } from './space'
@@ -55,33 +55,74 @@ export function dailyCategories(n: number): Category[] {
 }
 
 const isPicture = (id: Category['id']): id is PictureKind => id === 'flag' || id === 'outline'
-const bankFor = (id: Category['id'], d: Difficulty) => (isPicture(id) ? picturePool(id, d) : pool(id, d))
+/** Every question a category can deal at a difficulty, before checking dates. */
+export const bankFor = (id: Category['id'], d: Difficulty) => (isPicture(id) ? picturePool(id, d) : pool(id, d))
+
+/**
+ * Launches before this date were dealt by the first dealer, which reshuffles
+ * a deck of the launch-day questions each time it runs out. They still are,
+ * so results already played keep lining up with their questions.
+ */
+export const DEALER_SWITCH = '2026-10-20'
+
+type Bank = (id: Category['id'], d: Difficulty) => readonly TriviaQuestion[]
 
 /** Deals card `index` from a deck that is reshuffled each time it runs out. */
-function deal(bank: readonly AskedQuestion['question'][], deck: string, index: number) {
+function legacyDeal(bank: readonly TriviaQuestion[], deck: string, index: number) {
   const round = Math.floor(index / bank.length)
   return shuffle(bank, seeded(`${deck}:${round}`))[index % bank.length]
 }
 
 /**
- * The seven questions for launch `n`, the same on every device. Questions are
- * dealt from a fixed shuffled deck per category and difficulty, so nothing
- * repeats until its deck has been used up.
+ * Deals launches in order, remembering when each question was last shown.
+ * From DEALER_SWITCH on, each slot gets a question never shown in any earlier
+ * launch, picked at random from its deck. Only once a deck has shown every
+ * question does one come back, and then only from the half shown longest ago.
+ *
+ * A question joins its deck on its `since` date, so launch n depends only on
+ * questions dated n or earlier: adding questions never changes a past launch.
  */
-export function dailyQuestions(n: number): AskedQuestion[] {
-  const rand = seeded(`daily:${n}`)
-  // How many cards each deck has dealt on earlier days.
-  const used = new Map<string, number>()
-  for (let m = 1; m < n; m++) {
-    dailyCategories(m).forEach((c, i) => {
-      const key = `${c.id}:${DAILY_DIFFICULTY[i]}`
-      used.set(key, (used.get(key) ?? 0) + 1)
+export function makeDealer(bankFor: Bank) {
+  const switchN = dailyNumber(DEALER_SWITCH)
+  const dealt: TriviaQuestion[][] = []
+  const lastShown = new Map<string, number>()
+  const legacyUsed = new Map<string, number>()
+
+  function dealLaunch(n: number): TriviaQuestion[] {
+    return dailyCategories(n).map((c, i) => {
+      const d = DAILY_DIFFICULTY[i]
+      const key = `${c.id}:${d}`
+      let q: TriviaQuestion
+      if (n < switchN) {
+        const used = legacyUsed.get(key) ?? 0
+        q = legacyDeal(bankFor(c.id, d).filter((x) => !x.since), `themed:${key}`, used)
+        legacyUsed.set(key, used + 1)
+      } else {
+        const bank = bankFor(c.id, d).filter((x) => !x.since || dailyNumber(x.since) <= n)
+        const unseen = bank.filter((x) => !lastShown.has(x.id))
+        const rand = seeded(`deal:${key}:${n}`)
+        // Each deck deals at most once a launch, so no two questions share a last-shown launch.
+        const choices = unseen.length ? unseen : [...bank].sort((a, b) => lastShown.get(a.id)! - lastShown.get(b.id)!).slice(0, Math.ceil(bank.length / 2))
+        q = choices[Math.floor(rand() * choices.length)]
+      }
+      lastShown.set(q.id, n)
+      return q
     })
   }
-  return dailyCategories(n).map((c, i) => {
-    const d = DAILY_DIFFICULTY[i]
-    return ask(deal(bankFor(c.id, d), `themed:${c.id}:${d}`, used.get(`${c.id}:${d}`) ?? 0), rand)
-  })
+
+  /** The questions of launch `n`, in slot order. */
+  return (n: number): readonly TriviaQuestion[] => {
+    while (dealt.length < n) dealt.push(dealLaunch(dealt.length + 1))
+    return dealt[n - 1]
+  }
+}
+
+const dealt = makeDealer(bankFor)
+
+/** The seven questions for launch `n`, the same on every device. */
+export function dailyQuestions(n: number): AskedQuestion[] {
+  const rand = seeded(`daily:${n}`)
+  return dealt(n).map((q) => ask(q, rand))
 }
 
 /**
