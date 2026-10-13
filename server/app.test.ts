@@ -1,5 +1,8 @@
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { hashPassword, rateLimiter, verifyPassword } from './auth.ts'
 import { createApp } from './app.ts'
@@ -18,6 +21,28 @@ describe('password hashing', () => {
   it('rate limiter allows `limit` hits per window', () => {
     const allow = rateLimiter(2, 1000)
     expect([allow('a', 0), allow('a', 1), allow('a', 2), allow('b', 2), allow('a', 1001)]).toEqual([true, true, false, true, true])
+  })
+})
+
+describe('serving the app', () => {
+  it('revalidates index.html on every load and keeps hashed assets for good', async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'zenith-dist-'))
+    mkdirSync(path.join(dir, 'assets'))
+    writeFileSync(path.join(dir, 'index.html'), '<!doctype html>')
+    writeFileSync(path.join(dir, 'assets', 'index-abc123.js'), '')
+    writeFileSync(path.join(dir, 'favicon.svg'), '<svg/>')
+    const server = createApp({ db: {} as Db, staticDir: dir }).listen(0)
+    const base = `http://localhost:${(server.address() as AddressInfo).port}`
+    try {
+      const cache = async (p: string) => (await fetch(base + p)).headers.get('cache-control')
+      expect(await cache('/')).toBe('no-cache')
+      expect(await cache('/index.html')).toBe('no-cache')
+      expect(await cache('/somewhere')).toBe('no-cache')
+      expect(await cache('/assets/index-abc123.js')).toBe('public, max-age=31536000, immutable')
+      expect(await cache('/favicon.svg')).toBe('public, max-age=3600')
+    } finally {
+      server.close()
+    }
   })
 })
 

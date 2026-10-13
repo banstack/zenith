@@ -266,9 +266,19 @@ export function createApp({ db, staticDir, secureCookies = false, authLimit = 20
   })
 
   if (staticDir && existsSync(staticDir)) {
-    app.use(express.static(staticDir, { index: 'index.html', maxAge: '1h' }))
+    // index.html must be revalidated on every load, or a cached copy keeps pointing at last deploy's
+    // bundle. Vite's hashed files under assets/ never change, so they can be kept for good.
+    app.use(
+      express.static(staticDir, {
+        index: 'index.html',
+        setHeaders: (res, file) => {
+          res.setHeader('Cache-Control', file.endsWith('.html') ? 'no-cache' : file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable' : 'public, max-age=3600')
+        },
+      }),
+    )
     // Hash routing means only "/" is ever requested, but fall back for safety.
     app.get(/^(?!\/api\/).*/, (_req, res) => {
+      res.setHeader('Cache-Control', 'no-cache')
       res.sendFile(path.join(staticDir, 'index.html'))
     })
   }
