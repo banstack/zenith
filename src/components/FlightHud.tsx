@@ -1,16 +1,25 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { formatAltitude, zoneAt } from '../lib/space'
 import { AltitudeGauge, Sky } from './Sky'
 import { SoundToggle } from './SoundToggle'
 
-/** The frame around a flight: sky, gauge, altitude readout, and a slot for progress (dots or fuel cells). */
-export function FlightFrame({ height, title, status, banner, children }: { height: number; title: string; status: ReactNode; banner?: string | null; children: ReactNode }) {
+/**
+ * The frame around a flight: sky, gauge, altitude readout, and a slot for progress (dots or fuel cells).
+ * On phones the site header hides and this HUD folds into one row, with `exitTo` as the way out.
+ */
+export function FlightFrame({ height, title, status, banner, exitTo, children }: { height: number; title: string; status: ReactNode; banner?: string | null; exitTo: string; children: ReactNode }) {
   return (
     <div className="flight">
       <Sky height={height} />
       <AltitudeGauge height={height} />
       <header className="flight-hud">
-        <div>
+        <Link to={exitTo} className="flight-exit" aria-label="Leave flight">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </Link>
+        <div className="hud-left">
           <span className="eyebrow">{title}</span>
           <div className="altitude-readout" aria-live="polite">
             {formatAltitude(height)}

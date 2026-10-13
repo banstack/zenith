@@ -13,10 +13,12 @@ interface Props {
   /** Saves each answer; called with the new answers list. */
   onAnswer?: (answers: boolean[]) => void
   onFinish: (answers: boolean[]) => void
+  /** Where the phone-only exit button goes. */
+  exitTo?: string
 }
 
 /** Plays the seven questions of Daily Launch `n`. */
-export function DailyRun({ n, title, initial, onAnswer, onFinish }: Props) {
+export function DailyRun({ n, title, initial, onAnswer, onFinish, exitTo = '/' }: Props) {
   const questions = useMemo(() => dailyQuestions(n), [n])
   const categories = useMemo(() => dailyCategories(n), [n])
   const [answers, setAnswers] = useState<boolean[]>([...initial])
@@ -52,7 +54,7 @@ export function DailyRun({ n, title, initial, onAnswer, onFinish }: Props) {
 
   const zoneOf = (i: number) => ZONES[DAILY_ZONE[i]].id
   return (
-    <FlightFrame height={height} title={title} status={<ProgressDots answers={answers} total={DAILY_LENGTH} zoneOf={zoneOf} />} banner={banner}>
+    <FlightFrame height={height} title={title} status={<ProgressDots answers={answers} total={DAILY_LENGTH} zoneOf={zoneOf} />} banner={banner} exitTo={exitTo}>
       <p className="question-meta">
         Question {index + 1} of {DAILY_LENGTH} · {categories[index].name} · {DIFFICULTY_NAMES[questions[index].question.difficulty]}
         {height < MILESTONES.length && ` · next stop ${MILESTONES[height].name}`}

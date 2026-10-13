@@ -25,5 +25,5 @@ export function Archive() {
       </div>
     )
   }
-  return <DailyRun key={n} n={n} title={`Replay · Zenith #${n} · ${dailyTopicName(n)}`} initial={[]} onFinish={setAnswers} />
+  return <DailyRun key={n} n={n} title={`Replay · Zenith #${n} · ${dailyTopicName(n)}`} initial={[]} onFinish={setAnswers} exitTo="/practice" />
 }
