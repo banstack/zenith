@@ -1,5 +1,6 @@
 import { picturePool } from '../content/pictures'
 import { ask, pool, type AskedQuestion } from '../content/questions'
+import { dateKey } from './dates'
 import { MAX_HEIGHT, ZONES, zoneIndexAt } from './space'
 import { pick } from './rng'
 import { TOPICS, type PracticeTopic } from './topics'
@@ -73,13 +74,13 @@ export function answerPractice(s: PracticeState, correct: boolean): PracticeStep
 /** Share of Geography questions that are a flag or a country outline. */
 export const PICTURE_SHARE = 1 / 3
 
-/** Next question at the difficulty of the current zone, avoiding ones already seen this flight. */
-export function nextPracticeQuestion(topic: PracticeTopic, height: number, seen: Set<string>, rand = Math.random): AskedQuestion {
+/** Next question at the difficulty of the current zone, avoiding ones already seen this flight. Questions join Practice on the same date they join the Daily. */
+export function nextPracticeQuestion(topic: PracticeTopic, height: number, seen: Set<string>, rand = Math.random, today = dateKey()): AskedQuestion {
   const difficulty = ZONES[zoneIndexAt(height)].difficulty
   const topics = topic === 'mixed' ? TOPICS.map((t) => t.id) : [topic]
   // Pictures make up a third of the geography share: every Geography question, or one topic in eight on Mixed.
   const pictureOdds = topic === 'geography' ? PICTURE_SHARE : topic === 'mixed' ? PICTURE_SHARE / TOPICS.length : 0
-  const all = rand() < pictureOdds ? (['flag', 'outline'] as const).flatMap((k) => picturePool(k, difficulty)) : topics.flatMap((t) => pool(t, difficulty))
+  const all = (rand() < pictureOdds ? (['flag', 'outline'] as const).flatMap((k) => picturePool(k, difficulty)) : topics.flatMap((t) => pool(t, difficulty))).filter((q) => !q.since || q.since <= today)
   const fresh = all.filter((q) => !seen.has(q.id))
   return ask(pick(fresh.length ? fresh : all, rand), rand)
 }

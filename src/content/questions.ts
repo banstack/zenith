@@ -1,5 +1,6 @@
 import { hashString } from '../lib/rng'
 import type { TopicId } from '../lib/topics'
+import { ADDITIONS } from './additions'
 import type { PictureKind } from './pictures'
 import { food } from './topics/food'
 import { general } from './topics/general'
@@ -23,15 +24,20 @@ export interface TriviaQuestion {
   explanation?: string
   /** A flag or country outline shown above the choices (see src/content/pictures.ts). */
   image?: { kind: PictureKind; src: string; alt: string }
+  /** Date (YYYY-MM-DD) of the first Daily launch that can deal it. Unset for questions the game launched with. */
+  since?: string
 }
 
 export const BANKS: Record<TopicId, RawQuestion[]> = { general, history, science, math, screen, geography, music, sports, food }
 
-function build(topic: TopicId, [difficulty, prompt, a, b, c, d, explanation]: RawQuestion): TriviaQuestion {
-  return { id: `${topic}-${hashString(prompt).toString(36)}`, topic, difficulty, prompt, answers: [a, b, c, d], explanation }
+function build(topic: TopicId, [difficulty, prompt, a, b, c, d, explanation]: RawQuestion, since?: string): TriviaQuestion {
+  return { id: `${topic}-${hashString(prompt).toString(36)}`, topic, difficulty, prompt, answers: [a, b, c, d], explanation, ...(since && { since }) }
 }
 
-const ALL: TriviaQuestion[] = (Object.keys(BANKS) as TopicId[]).flatMap((t) => BANKS[t].map((q) => build(t, q)))
+const ALL: TriviaQuestion[] = [
+  ...(Object.keys(BANKS) as TopicId[]).flatMap((t) => BANKS[t].map((q) => build(t, q))),
+  ...ADDITIONS.flatMap(({ since, banks }) => (Object.keys(banks) as TopicId[]).flatMap((t) => banks[t]!.map((q) => build(t, q, since)))),
+]
 
 const pools = new Map<string, TriviaQuestion[]>()
 for (const q of ALL) {
@@ -41,7 +47,7 @@ for (const q of ALL) {
 
 export const allQuestions = (): readonly TriviaQuestion[] => ALL
 
-/** Questions of one topic and difficulty, in bank order. */
+/** Questions of one topic and difficulty: the launch banks in order, then each batch of additions. */
 export const pool = (topic: TopicId, difficulty: Difficulty): readonly TriviaQuestion[] => pools.get(`${topic}:${difficulty}`) ?? []
 
 /** A question shown to the player, with its choices in display order. */

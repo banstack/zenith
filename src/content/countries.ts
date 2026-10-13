@@ -4,11 +4,13 @@ export type Region = 'europe' | 'north-america' | 'south-america' | 'asia' | 'mi
 
 /**
  * A country used by the picture questions: [ISO 3166 alpha-2 code, name,
- * region, flag difficulty, outline difficulty]. An outline difficulty of 0
- * means the country is too small or scattered to recognize from its shape.
+ * region, flag difficulty, outline difficulty, date added]. An outline
+ * difficulty of 0 means the country is too small or scattered to recognize
+ * from its shape. A country added after launch gives the date of the first
+ * Daily that can deal it (see src/content/additions/index.ts).
  * The images are built by scripts/build-geo-assets.ts.
  */
-export type CountryRow = [string, string, Region, Difficulty, Difficulty | 0]
+export type CountryRow = [string, string, Region, Difficulty, Difficulty | 0, string?]
 
 export const COUNTRIES: CountryRow[] = [
   // Europe
