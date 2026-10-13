@@ -25,7 +25,7 @@ export const sports: RawQuestion[] = [
 
   // Difficulty 4
   [4, 'Which city hosted the 1992 Summer Olympics?', 'Barcelona', 'Atlanta', 'Seoul', 'Sydney', 'The US basketball "Dream Team" played there.'],
-  [4, 'What is the highest score possible with three darts?', '180', '150', '171', '200', 'Three treble 20s.'],
+  [4, 'In darts, how many points is the bullseye worth?', '50', '25', '60', '100', 'The ring around it, the outer bull, scores 25.'],
   [4, 'Which country has won the most men\'s Rugby World Cups?', 'South Africa', 'New Zealand', 'Australia', 'England', 'The Springboks won in 1995, 2007, 2019 and 2023.'],
   [4, 'The Davis Cup is a team competition in which sport?', 'Tennis', 'Golf', 'Squash', 'Badminton', 'It began in 1900 as a match between the US and the British Isles.'],
 
@@ -33,5 +33,5 @@ export const sports: RawQuestion[] = [
   [5, 'Who won the first men\'s Cricket World Cup, in 1975?', 'West Indies', 'Australia', 'England', 'India', 'They beat Australia in the final at Lord\'s.'],
   [5, 'Which horse won the 1973 Belmont Stakes by 31 lengths to take the Triple Crown?', 'Secretariat', 'Seattle Slew', 'Affirmed', 'Citation', 'His Belmont time of 2:24 still stands as the race record.'],
   [5, 'In which year were the first Winter Olympic Games held?', '1924', '1920', '1928', '1936', 'They were held in Chamonix, France.'],
-  [5, 'In polo, what is each period of play called?', 'Chukka', 'Inning', 'End', 'Set', 'It is also spelled chukker, and lasts seven and a half minutes.'],
+  [5, 'Which city hosted the first British Empire Games, now the Commonwealth Games, in 1930?', 'Hamilton', 'London', 'Sydney', 'Auckland', 'The city is in Ontario, Canada.'],
 ]

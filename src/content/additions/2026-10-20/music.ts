@@ -20,7 +20,7 @@ export const music: RawQuestion[] = [
   [3, 'What does "a cappella" mean?', 'Singing without instruments', 'Singing very loudly', 'Singing in Italian', 'Singing in a round', 'It is Italian for "in the manner of the chapel".'],
   [3, 'Who composed the opera The Magic Flute?', 'Wolfgang Amadeus Mozart', 'Joseph Haydn', 'Giuseppe Verdi', 'Richard Wagner', 'It premiered in Vienna in 1791, weeks before his death.'],
   [3, 'Johnny Cash was famously nicknamed what?', 'The Man in Black', 'The Boss', 'The King', 'Ol\' Blue Eyes', 'He said he wore black for the poor and the beaten-down.'],
-  [3, 'What was the name of Bob Marley\'s band?', 'The Wailers', 'Toots and the Maytals', 'Third World', 'Black Uhuru', 'He founded it with Peter Tosh and Bunny Wailer.'],
+  [3, 'Who recorded the 1971 album Blue?', 'Joni Mitchell', 'Carole King', 'Joan Baez', 'Carly Simon', 'Carole King\'s Tapestry came out the same year.'],
   [3, 'Which tempo marking means "very fast"?', 'Presto', 'Largo', 'Adagio', 'Andante', 'Largo and adagio are slow; andante is a walking pace.'],
 
   // Difficulty 4

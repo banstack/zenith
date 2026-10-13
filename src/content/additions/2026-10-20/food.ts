@@ -13,7 +13,7 @@ export const food: RawQuestion[] = [
   [2, 'What kind of food is a baguette?', 'Bread', 'Cheese', 'Pastry', 'Sausage', 'French law sets what a traditional baguette may contain: flour, water, salt and yeast.'],
   [2, 'Pad thai comes from which country?', 'Thailand', 'Vietnam', 'Laos', 'Malaysia', 'It is stir-fried rice noodles, often with tamarind, peanuts and egg.'],
   [2, 'Which spirit is the base of a mojito?', 'White rum', 'Vodka', 'Gin', 'Tequila', 'It is mixed with lime, sugar, mint and soda water.'],
-  [2, 'Prunes are dried versions of which fruit?', 'Plums', 'Grapes', 'Figs', 'Apricots', 'Dried grapes are raisins.'],
+  [2, 'Dates grow on which kind of tree?', 'Palm', 'Fig', 'Olive', 'Almond', 'The date palm has been farmed in the Middle East for thousands of years.'],
 
   // Difficulty 3
   [3, 'Pierogi, filled dumplings, are a national dish of which country?', 'Poland', 'Hungary', 'Greece', 'Portugal', 'Common fillings include potato and cheese, sauerkraut, or meat.'],

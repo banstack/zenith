@@ -3,7 +3,7 @@ import type { RawQuestion } from '../../topics/types'
 export const history: RawQuestion[] = [
   // Difficulty 1
   [1, 'Which US president led the country through the Civil War?', 'Abraham Lincoln', 'Ulysses S. Grant', 'Andrew Jackson', 'Thomas Jefferson', 'He was the 16th president, from 1861 until his assassination in 1865.'],
-  [1, 'Which ship carried the Pilgrims to America in 1620?', 'Mayflower', 'Santa María', 'Endeavour', 'Beagle', 'They landed at Plymouth, in what is now Massachusetts.'],
+  [1, 'Which ship carried the Pilgrims to America in 1620?', 'Mayflower', 'Santa María', 'Endeavour', 'Beagle', 'They first anchored off Cape Cod, then settled at Plymouth, in what is now Massachusetts.'],
   [1, 'Which ancient people built the Parthenon?', 'Ancient Greeks', 'Romans', 'Egyptians', 'Persians', 'It was built on the Acropolis of Athens as a temple to Athena.'],
   [1, 'Which wall was built to protect China from invaders from the north?', 'The Great Wall', 'Hadrian\'s Wall', 'The Western Wall', 'The Berlin Wall', 'Most of what stands today was built under the Ming dynasty.'],
   [1, 'In which country did the ancient Olympic Games begin?', 'Greece', 'Italy', 'Egypt', 'Turkey', 'They were held at Olympia, traditionally from 776 BC.'],
@@ -27,7 +27,7 @@ export const history: RawQuestion[] = [
 
   // Difficulty 3
   [3, 'Which English king had six wives?', 'Henry VIII', 'Henry VII', 'Edward VI', 'Richard III', 'Divorced, beheaded, died; divorced, beheaded, survived.'],
-  [3, 'In which year did revolution end the rule of the tsars in Russia?', '1917', '1905', '1921', '1914', 'The February Revolution forced Nicholas II to abdicate.'],
+  [3, 'Who led the Bolsheviks to power in Russia in 1917?', 'Vladimir Lenin', 'Leon Trotsky', 'Joseph Stalin', 'Alexander Kerensky', 'Kerensky headed the provisional government they overthrew.'],
   [3, 'Which ancient wonder was a huge bronze statue of the sun god Helios?', 'The Colossus of Rhodes', 'The Statue of Zeus', 'The Lighthouse of Alexandria', 'The Mausoleum at Halicarnassus', 'An earthquake toppled it around 226 BC, only decades after it was built.'],
   [3, 'Who became the first Chancellor of a united Germany in 1871?', 'Otto von Bismarck', 'Wilhelm I', 'Paul von Hindenburg', 'Frederick the Great', 'Wilhelm I became emperor; Bismarck ran the government.'],
   [3, 'Which wars were fought between the Houses of Lancaster and York?', 'Wars of the Roses', 'Hundred Years\' War', 'English Civil War', 'Seven Years\' War', 'Henry Tudor\'s victory at Bosworth in 1485 brought them largely to an end.'],

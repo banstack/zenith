@@ -19,7 +19,7 @@ export const math: RawQuestion[] = [
   [2, 'What is 5 cubed?', '125', '25', '15', '75', '5 × 5 × 5 = 125.'],
   [2, 'What is 20% of 45?', '9', '8', '10', '12', '10% is 4.5, so 20% is double that.'],
   [2, 'What is 3/5 as a decimal?', '0.6', '0.35', '0.53', '0.5', '3 ÷ 5 = 0.6.'],
-  [2, 'What is the square root of 81?', '9', '8', '7', '18', 'Because 9 × 9 = 81.'],
+  [2, 'What is the square root of 64?', '8', '6', '7', '32', 'Because 8 × 8 = 64.'],
   [2, 'What is 16 × 4?', '64', '62', '68', '56', 'Doubling 16 twice: 32, then 64.'],
   [2, 'A pizza is cut into 8 slices and you eat 3. What fraction is left?', '5/8', '3/8', '3/5', '1/2', '8 − 3 = 5 slices, out of 8.'],
   [2, 'What is 1.5 × 4?', '6', '5.5', '6.5', '4.5', '1 × 4 = 4 and 0.5 × 4 = 2.'],
@@ -52,7 +52,7 @@ export const math: RawQuestion[] = [
   // Difficulty 5
   [5, 'What is 2 to the power of 16?', '65,536', '32,768', '16,384', '131,072', '2 to the 8th is 256, and 256 × 256 = 65,536.'],
   [5, 'How many prime numbers are there between 1 and 100?', '25', '24', '26', '21', 'They run from 2, 3, 5, 7 up to 89 and 97.'],
-  [5, 'What is Euler\'s number, e, to two decimal places?', '2.72', '2.71', '3.14', '1.62', 'e = 2.71828…, which rounds up to 2.72.'],
+  [5, 'What is Euler\'s number, e, to two decimal places?', '2.72', '2.27', '3.14', '1.62', 'e = 2.71828…, which rounds up to 2.72.'],
   [5, 'How many edges does a regular dodecahedron have?', '30', '20', '12', '60', 'It has 12 faces, 20 corners and 30 edges.'],
   [5, 'Starting 1, 1, 2, 3, what is the 10th Fibonacci number?', '55', '34', '89', '44', '1, 1, 2, 3, 5, 8, 13, 21, 34, 55.'],
   [5, 'In how many different orders can 5 books be arranged on a shelf?', '120', '25', '60', '720', '5! = 5 × 4 × 3 × 2 × 1.'],
