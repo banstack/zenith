@@ -4,11 +4,15 @@ import { play } from '../lib/sound'
 
 /** Seconds per question. Running out counts as a miss. */
 export const QUESTION_SECONDS = 20
+/** The fuel bar turns urgent, and ticks, for the last seconds. */
+const LOW_FUEL_SECONDS = 5
 /** Longest answer, in characters, that still fits half a phone-width row. */
 const SHORT_CHOICE = 12
 
 interface Props {
   asked: AskedQuestion
+  /** Right answers in a row before this question; a right answer plays a note higher for each. */
+  streak?: number
   /** Called once, when the player picks an answer or the fuel runs out. */
   onAnswered: (correct: boolean) => void
   onNext: () => void
@@ -18,7 +22,7 @@ interface Props {
 }
 
 /** One question: four choices, a fuel timer, then the reveal and a Next button. */
-export function Round({ asked, onAnswered, onNext, nextLabel = 'Next', outcome }: Props) {
+export function Round({ asked, streak = 0, onAnswered, onNext, nextLabel = 'Next', outcome }: Props) {
   const [picked, setPicked] = useState<number | null>(null)
   const [timedOut, setTimedOut] = useState(false)
   const [left, setLeft] = useState(QUESTION_SECONDS)
@@ -29,7 +33,7 @@ export function Round({ asked, onAnswered, onNext, nextLabel = 'Next', outcome }
   const resolve = (correct: boolean) => {
     if (answeredRef.current) return
     answeredRef.current = true
-    play(correct ? 'correct' : 'wrong')
+    play(correct ? 'correct' : 'wrong', { streak })
     onAnswered(correct)
   }
 
@@ -41,9 +45,16 @@ export function Round({ asked, onAnswered, onNext, nextLabel = 'Next', outcome }
   useEffect(() => {
     if (done) return
     const started = Date.now()
+    let ticked = Math.ceil(QUESTION_SECONDS)
     const id = setInterval(() => {
       const remaining = Math.max(0, QUESTION_SECONDS - (Date.now() - started) / 1000)
       setLeft(remaining)
+      // A quiet tick for each of the last seconds of fuel.
+      const whole = Math.ceil(remaining)
+      if (whole < ticked) {
+        ticked = whole
+        if (whole > 0 && whole <= LOW_FUEL_SECONDS) play('tick', { step: LOW_FUEL_SECONDS - whole })
+      }
       if (remaining <= 0) {
         clearInterval(id)
         onTimeout()
@@ -65,7 +76,7 @@ export function Round({ asked, onAnswered, onNext, nextLabel = 'Next', outcome }
   const correct = picked === asked.answerIndex
   // Short answers sit two by two on phones, so the whole question fits on one screen.
   const short = asked.choices.every((c) => c.length <= SHORT_CHOICE)
-  const low = left <= 5
+  const low = left <= LOW_FUEL_SECONDS
 
   return (
     <div className={`round ${done ? 'done' : ''}`}>

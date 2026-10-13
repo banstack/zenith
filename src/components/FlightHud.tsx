@@ -1,14 +1,32 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { useRolledHeight } from '../lib/climb'
 import { formatAltitude, zoneAt } from '../lib/space'
+import { FlightWindow } from './FlightWindow'
 import { AltitudeGauge, Sky } from './Sky'
 import { SoundToggle } from './SoundToggle'
 
+interface FrameProps {
+  height: number
+  title: string
+  status: ReactNode
+  /** The line above the next stop in the flight window, e.g. "Q3 of 7 · History · Medium". */
+  label: string
+  /** Changes on every miss, so the ship plays its hold. */
+  holdKey: number
+  banner?: string | null
+  exitTo: string
+  children: ReactNode
+}
+
 /**
- * The frame around a flight: sky, gauge, altitude readout, and a slot for progress (dots or fuel cells).
+ * The frame around a flight: sky, gauge, altitude readout, a slot for progress (dots or fuel cells),
+ * and the flight window where the ship climbs or holds after each answer.
  * On phones the site header hides and this HUD folds into one row, with `exitTo` as the way out.
  */
-export function FlightFrame({ height, title, status, banner, exitTo, children }: { height: number; title: string; status: ReactNode; banner?: string | null; exitTo: string; children: ReactNode }) {
+export function FlightFrame({ height: target, title, status, label, holdKey, banner, exitTo, children }: FrameProps) {
+  // Everything on screen follows the ship as it climbs, so the readout rolls up instead of jumping.
+  const height = useRolledHeight(target)
   return (
     <div className="flight">
       <Sky height={height} />
@@ -36,7 +54,10 @@ export function FlightFrame({ height, title, status, banner, exitTo, children }:
           Entering {banner}
         </div>
       )}
-      <div className="flight-body">{children}</div>
+      <div className="flight-body">
+        <FlightWindow height={height} target={target} holdKey={holdKey} label={label} />
+        {children}
+      </div>
     </div>
   )
 }
