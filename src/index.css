@@ -478,29 +478,66 @@ button { font: inherit; color: inherit; }
 
 /* ---------- account ---------- */
 
-.account-signed-in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-.account-signed-in p + p { margin-top: 4px; }
+.avatar { position: relative; }
+.avatar-dot { position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg); background: #5be3a0; }
+.avatar-dot.warn { background: #ff9a85; }
+.sign-in-btn { white-space: nowrap; }
+
+.profile-info { flex: 1; min-width: 200px; }
+.account-status { flex-basis: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px 16px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--line); }
+.account-status p + p { margin-top: 4px; }
+.account-status p strong { overflow-wrap: anywhere; }
 .sync-status { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9rem; }
-.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sync-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
 .sync-status.synced .sync-dot { background: #5be3a0; }
 .sync-status.syncing .sync-dot { background: var(--near); animation: pulse 1s infinite; }
 .sync-status.error { color: #ff9a85; }
 .sync-status.error .sync-dot { background: #ff9a85; }
-.auth-form { display: flex; flex-direction: column; gap: 14px; max-width: 520px; }
-.auth-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.auth-fields label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 0.9rem; }
-.auth-fields input {
-  font: inherit;
-  padding: 10px 12px;
-  border-radius: 10px;
+
+/* The sign-in sheet and the "Save your streak" card are white, like question cards. */
+.sheet {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
   border: 0;
+  border-radius: var(--radius);
   background: var(--chalk);
+  color: var(--ink);
+}
+.sheet[open] { animation: rise 0.18s ease; }
+.sheet::backdrop { background: rgb(5 4 12 / 0.6); }
+.sheet-body { display: flex; flex-direction: column; gap: 12px; padding: 20px; }
+.sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.sheet .muted, .save-card .muted { color: var(--ink-soft); }
+.sheet .icon-btn { background: var(--wash); color: var(--ink); }
+@media (max-width: 640px) {
+  .sheet { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: var(--radius) var(--radius) 0 0; }
+  .sheet-body { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+}
+
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-fields { display: flex; flex-direction: column; gap: 12px; }
+.auth-fields label, .save-card-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 0.9rem; }
+.auth-fields input, .save-card-field input {
+  font: inherit;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid #d3dbe4;
+  background: var(--wash);
   color: var(--ink);
   outline: none;
 }
-.auth-fields input:focus-visible { outline: 3px solid var(--flare); }
-.auth-error { color: #ff9a85; font-weight: 600; }
-.auth-form .link-btn { font-size: 0.85rem; }
+.auth-fields input:focus-visible, .save-card-field input:focus-visible { outline: 3px solid var(--flare); }
+.auth-error { color: var(--bad); font-weight: 600; }
+.dev-box .auth-error { color: #ff9a85; }
+.auth-form .link-btn { align-self: center; font-size: 0.85rem; color: var(--ink-soft); }
+.auth-form .link-btn:hover { color: var(--ink); }
+
+.save-card { display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 18px; border-radius: var(--radius); background: var(--chalk); color: var(--ink); }
+.save-card h2 { font-size: 1.15rem; }
+.save-card h2 .icon { color: var(--flare); }
+.btn.quiet { background: var(--wash); color: var(--ink); }
+.btn.quiet:hover { background: #dce4ec; }
 
 /* ---------- toast ---------- */
 

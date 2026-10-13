@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { dailyStreak } from '../lib/discoveries'
+import { openSignIn } from '../lib/signIn'
 import { useAppData } from '../lib/store'
+import { useSync } from '../lib/sync'
 import { Avatar } from './Avatar'
 import { DiscoveryToaster } from './DiscoveryToaster'
 import { FlameIcon } from './Icons'
+import { SignInSheet } from './SignInSheet'
 
 const LINKS = [
   { to: '/', label: 'Today', end: true },
@@ -13,6 +16,7 @@ const LINKS = [
 
 export function Layout() {
   const data = useAppData()
+  const sync = useSync()
   const days = dailyStreak(data)
   const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -31,9 +35,19 @@ export function Layout() {
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
 
+  const signedOut = sync.available === true && !sync.user
+  const dot = sync.user ? (sync.status === 'offline' || sync.status === 'error' ? 'warn' : 'ok') : undefined
+  const syncLabel = sync.user ? (dot === 'ok' ? ', synced' : ', not synced') : ''
+
+  const signInButton = signedOut && (
+    <button className="btn ghost small sign-in-btn" onClick={() => (close(), openSignIn())}>
+      Sign in
+    </button>
+  )
+
   const profileChip = (
-    <NavLink to="/star-chart" className="profile-chip" aria-label={`Star chart, ${days} day streak`} onClick={close}>
-      <Avatar name={data.profile.name} size="sm" />
+    <NavLink to="/star-chart" className="profile-chip" aria-label={`Star chart, ${days} day streak${syncLabel}`} onClick={close}>
+      <Avatar name={data.profile.name} size="sm" dot={dot} />
       <span className="streak">
         <FlameIcon size={15} /> {days}
       </span>
@@ -52,10 +66,12 @@ export function Layout() {
               {l.label}
             </NavLink>
           ))}
+          {signInButton}
           {profileChip}
         </nav>
         {/* Small screens: profile chip stays visible, the rest moves into a menu. */}
         <div className="nav-compact">
+          {signInButton}
           {profileChip}
           <button
             className="menu-btn"
@@ -92,6 +108,7 @@ export function Layout() {
         <Outlet />
       </main>
       <DiscoveryToaster />
+      <SignInSheet />
     </div>
   )
 }
