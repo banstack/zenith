@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useRolledHeight } from '../lib/climb'
-import { scoreAt, zoneAt } from '../lib/space'
+import { regionName, scoreAt } from '../lib/space'
 import { FlightWindow } from './FlightWindow'
 import { AltitudeGauge, Sky } from './Sky'
 import { SoundToggle } from './SoundToggle'
@@ -43,7 +43,7 @@ export function FlightFrame({ height: target, title, status, label, holdKey, ban
             {scoreAt(height)}
             <span className="readout-unit">pts</span>
           </div>
-          <span className="zone-name">{zoneAt(height).name}</span>
+          <span className="zone-name">{regionName(height)}</span>
         </div>
         <div className="hud-right">
           {status}

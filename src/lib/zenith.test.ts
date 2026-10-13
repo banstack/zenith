@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { AppData, DailyResult } from '../types'
 import * as server from '../../server/scores.ts'
-import { DAILY_LENGTH, DAILY_POINTS, EPOCH, dailyCategories, MAX_POINTS, dailyDate, dailyHeight, dailyNumber, dailyPoints, dailyQuestions, dailyTopic, shareText } from './daily'
+import { DAILY_LENGTH, DAILY_POINTS, EPOCH, dailyCategories, MAX_POINTS, dailyDate, dailyHeight, dailyNumber, dailyPoints, dailyQuestions, dailyRank, dailyTopic, nextRank, shareText } from './daily'
 import { standingFrom, standingText } from './standing'
 import { emptyData, migrate } from './data'
 import { addDays, longestStreak, streak } from './dates'
 import { mergeAppData } from './merge'
 import { DISCOVERIES, dailyStreak, newlyFound } from './discoveries'
 import { MAX_FUEL, answerPractice, nextPracticeQuestion, startPractice } from './practice'
-import { MAX_HEIGHT, formatAltitude, heightToKm, heightToScore, scoreAt, scoreToHeight, zoneAt } from './space'
+import { MAX_HEIGHT, formatAltitude, heightToKm, heightToScore, milestoneAt, regionName, scoreAt, scoreToHeight, zoneAt } from './space'
 
 const result = (date: string, answers: boolean[], finishedAt: number | null = 1): DailyResult => ({
   date,
@@ -64,6 +64,15 @@ describe('daily launch', () => {
     expect(dailyHeight([false, false, false, false, false, false, true])).toBeCloseTo(3 + 100 / 150)
   })
 
+  it('ranks a launch by the zone its score reaches', () => {
+    expect(dailyRank(600)).toBe('Interstellar Space')
+    expect(dailyRank(0)).toBe('Near Earth')
+    expect(dailyRank(1000)).toBe('Galactic Center')
+    expect(nextRank(600)).toEqual({ name: 'Deep Galaxy', score: 700 })
+    expect(nextRank(800)).toEqual({ name: 'Galactic Center', score: 1000 })
+    expect(nextRank(1000)).toBeNull()
+  })
+
   it('turns heights into scores and back', () => {
     expect([0, 1, 2, 3, 4, 5, 6, 7].map(heightToScore)).toEqual([0, 50, 100, 200, 350, 500, 700, 1000])
     expect(heightToScore(6.5)).toBe(850)
@@ -72,7 +81,7 @@ describe('daily launch', () => {
   })
 
   it('builds a share grid', () => {
-    expect(shareText(12, [true, true, true, false, true, true, false])).toBe('Zenith #12\n🟦🟦⬜⬛🟧🟪⬛  550/1,000')
+    expect(shareText(12, [true, true, true, false, true, true, false])).toBe('Zenith #12\n🟦🟦⬜⬛🟧🟪⬛  550/1,000 · Interstellar Space')
   })
 })
 
@@ -133,10 +142,22 @@ describe('practice flight', () => {
     expect(answerPractice(s, true).state).toBe(s)
   })
 
-  it('stops at the Galactic Center', () => {
-    const s = answerPractice({ ...startPractice(), height: MAX_HEIGHT - 0.01 }, true).state
-    expect(s.height).toBe(MAX_HEIGHT)
-    expect(s.over).toBe('top')
+  it('flies on past the Galactic Center, refilling fuel at each stop beyond it', () => {
+    const step = answerPractice({ ...startPractice(), fuel: 1, height: MAX_HEIGHT - 0.01 }, true)
+    expect(step.state.height).toBeGreaterThan(MAX_HEIGHT)
+    expect(step.state.over).toBeNull()
+    expect(step.passedStop).toBe(true)
+    expect(step.state.fuel).toBe(2)
+    expect(heightToScore(step.state.height)).toBeGreaterThan(1000)
+    expect(milestoneAt(MAX_HEIGHT + 1)!.name).toBe('Andromeda Galaxy')
+    expect(answerPractice({ ...startPractice(), height: MAX_HEIGHT + 0.2 }, true).passedStop).toBe(false)
+  })
+
+  it('scores 300 for each stop past the Galactic Center', () => {
+    expect(heightToScore(MAX_HEIGHT + 1)).toBe(1300)
+    expect(scoreToHeight(1600)).toBeCloseTo(MAX_HEIGHT + 2)
+    expect(regionName(MAX_HEIGHT)).toBe('Deep Galaxy')
+    expect(regionName(MAX_HEIGHT + 0.5)).toBe('Intergalactic Space')
   })
 
   it('asks questions matching the zone and avoids repeats', () => {

@@ -27,8 +27,19 @@ export const MILESTONES: Milestone[] = [
   { name: 'Galactic Center', km: 26_000 * LY },
 ]
 
-/** The top: the center of the Milky Way. */
+/** The top of a Daily Launch: the center of the Milky Way. */
 export const MAX_HEIGHT = MILESTONES.length
+
+/** Stops past the Galactic Center, which only Practice flies on to. */
+export const BEYOND: Milestone[] = [
+  { name: 'Andromeda Galaxy', km: 2.5e6 * LY },
+  { name: 'Virgo Cluster', km: 54e6 * LY },
+  { name: 'Great Attractor', km: 250e6 * LY },
+  { name: 'Edge of the observable universe', km: 46.5e9 * LY },
+]
+
+/** Every stop in order, the daily seven first. Height n means you've reached STOPS[n - 1]. */
+export const STOPS: Milestone[] = [...MILESTONES, ...BEYOND]
 
 export interface Zone {
   id: 'near' | 'lunar' | 'planets' | 'interstellar' | 'galaxy'
@@ -59,16 +70,22 @@ export function zoneIndexAt(height: number): number {
 
 export const zoneAt = (height: number) => ZONES[zoneIndexAt(height)]
 
-/** The last milestone at or below a height, or null on the launch pad. */
-export const milestoneAt = (height: number): Milestone | null => MILESTONES[Math.min(MAX_HEIGHT, Math.floor(height + 1e-9)) - 1] ?? null
+/** Where you are, by name: the zone, or intergalactic space once past the Galactic Center. */
+export const regionName = (height: number) => (height > MAX_HEIGHT + 1e-6 ? 'Intergalactic Space' : zoneAt(height).name)
 
-/** Real distance for a height: linear up to the edge of space, then log-scaled between milestones. */
+/** The last stop at or below a height, or null on the launch pad. */
+export const milestoneAt = (height: number): Milestone | null => STOPS[Math.min(STOPS.length, Math.floor(height + 1e-9)) - 1] ?? null
+
+/** The next stop above a height, or null past the last one. */
+export const nextStopAt = (height: number): Milestone | null => STOPS[Math.floor(height + 1e-6)] ?? null
+
+/** Real distance for a height: linear up to the edge of space, then log-scaled between stops. */
 export function heightToKm(height: number): number {
-  const h = Math.min(MAX_HEIGHT, Math.max(0, height))
-  if (h <= 1) return h * MILESTONES[0].km
-  const i = Math.min(MAX_HEIGHT - 1, Math.floor(h))
-  const lo = MILESTONES[i - 1].km
-  const hi = MILESTONES[i]?.km ?? lo
+  const h = Math.min(STOPS.length, Math.max(0, height))
+  if (h <= 1) return h * STOPS[0].km
+  const i = Math.min(STOPS.length - 1, Math.floor(h))
+  const lo = STOPS[i - 1].km
+  const hi = STOPS[i]?.km ?? lo
   return lo * Math.pow(hi / lo, h - i)
 }
 
@@ -91,16 +108,21 @@ export const STOP_SCORES = [0, 50, 100, 200, 350, 500, 700, 1000] as const
 
 export const MAX_SCORE = STOP_SCORES[MAX_HEIGHT]
 
+/** Practice keeps scoring past the Galactic Center: each further stop is worth as much as the Expert question. */
+export const BEYOND_STOP_SCORE = 300
+
 /** Score for a height, straight-line between stops. */
 export function heightToScore(height: number): number {
-  const h = Math.min(MAX_HEIGHT, Math.max(0, height))
+  const h = Math.max(0, height)
+  if (h > MAX_HEIGHT) return Math.round(MAX_SCORE + (h - MAX_HEIGHT) * BEYOND_STOP_SCORE)
   const i = Math.min(MAX_HEIGHT - 1, Math.floor(h))
   return Math.round(STOP_SCORES[i] + (STOP_SCORES[i + 1] - STOP_SCORES[i]) * (h - i))
 }
 
 /** Height for a score, the inverse of heightToScore. */
 export function scoreToHeight(score: number): number {
-  const s = Math.min(MAX_SCORE, Math.max(0, score))
+  if (score > MAX_SCORE) return MAX_HEIGHT + (score - MAX_SCORE) / BEYOND_STOP_SCORE
+  const s = Math.max(0, score)
   const i = STOP_SCORES.findIndex((v, k) => k > 0 && s <= v) - 1
   return i + (s - STOP_SCORES[i]) / (STOP_SCORES[i + 1] - STOP_SCORES[i])
 }

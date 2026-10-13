@@ -16,6 +16,7 @@ export interface PracticeState {
   bestStreak: number
   answered: number
   correct: number
+  /** Practice is endless, so only fuel ends it now; 'top' is kept for flights saved before. */
   over: null | 'fuel' | 'top'
 }
 
@@ -33,20 +34,24 @@ export interface PracticeStep {
   gained: number
   /** Set when this answer carried you into a new zone. */
   enteredZone: number | null
+  /** Set when this answer carried you past a stop beyond the Galactic Center. */
+  passedStop: boolean
 }
 
 export function answerPractice(s: PracticeState, correct: boolean): PracticeStep {
-  if (s.over) return { state: s, gained: 0, enteredZone: null }
+  if (s.over) return { state: s, gained: 0, enteredZone: null, passedStop: false }
   const answered = s.answered + 1
   if (!correct) {
     const fuel = s.fuel - 1
-    return { state: { ...s, answered, fuel, streak: 0, over: fuel <= 0 ? 'fuel' : null }, gained: 0, enteredZone: null }
+    return { state: { ...s, answered, fuel, streak: 0, over: fuel <= 0 ? 'fuel' : null }, gained: 0, enteredZone: null, passedStop: false }
   }
   const streak = s.streak + 1
   const from = zoneIndexAt(s.height)
-  const height = Math.min(MAX_HEIGHT, Math.round((s.height + ZONE_STEP[from] * streakBonus(streak)) * 1e4) / 1e4)
+  // No ceiling: past the Galactic Center you keep climbing at the Deep Galaxy pace.
+  const height = Math.round((s.height + ZONE_STEP[from] * streakBonus(streak)) * 1e4) / 1e4
   const to = zoneIndexAt(height)
   const enteredZone = to > from ? to : null
+  const passedStop = height >= MAX_HEIGHT && Math.floor(height + 1e-9) > Math.floor(s.height + 1e-9)
   return {
     state: {
       ...s,
@@ -55,12 +60,13 @@ export function answerPractice(s: PracticeState, correct: boolean): PracticeStep
       correct: s.correct + 1,
       streak,
       bestStreak: Math.max(s.bestStreak, streak),
-      // Reaching a new zone refills a fuel cell.
-      fuel: enteredZone !== null ? Math.min(MAX_FUEL, s.fuel + 1) : s.fuel,
-      over: height >= MAX_HEIGHT ? 'top' : null,
+      // Reaching a new zone, or a stop past the Galactic Center, refills a fuel cell.
+      fuel: enteredZone !== null || passedStop ? Math.min(MAX_FUEL, s.fuel + 1) : s.fuel,
+      over: null,
     },
     gained: height - s.height,
     enteredZone,
+    passedStop,
   }
 }
 

@@ -15,7 +15,7 @@ const CALENDAR_WEEKS = 6
 export function StarChart() {
   const data = useAppData()
   const finished = Object.values(data.daily).filter((r) => r.finishedAt !== null)
-  const highest = Math.max(0, ...finished.map((r) => r.height), ...data.practice.map((p) => p.maxHeight))
+  const bestDaily = Math.max(0, ...finished.map((r) => r.height))
   const perfect = finished.filter((r) => r.height >= MAX_HEIGHT).length
   const found = DISCOVERIES.filter((c) => data.discoveries[c.id]).length
 
@@ -24,7 +24,7 @@ export function StarChart() {
     { label: 'longest streak', value: String(longestDailyStreak(data)) },
     { label: 'daily launches', value: String(finished.length) },
     { label: 'perfect launches', value: String(perfect) },
-    { label: 'best score', value: scoreAt(highest) },
+    { label: 'best daily score', value: scoreAt(bestDaily) },
     { label: 'practice flights', value: String(data.practice.length) },
   ]
 

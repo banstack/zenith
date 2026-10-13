@@ -23,7 +23,7 @@ export function Practice() {
       <span className="eyebrow">Practice</span>
       <h1>Pick a topic and launch</h1>
       <p className="lead">
-        You have 3 fuel cells. A miss costs one, and each new zone gives one back. Every right answer adds to your score, and 1,000 reaches the Galactic Center.
+        You have 3 fuel cells. A miss costs one, and each new zone gives one back. Every right answer adds to your score. 1,000 reaches the Galactic Center, and there's no ceiling: keep flying toward Andromeda and beyond.
       </p>
       <div className="topic-grid">
         {[MIXED, ...TOPICS].map((t) => (

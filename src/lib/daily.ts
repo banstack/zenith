@@ -2,7 +2,7 @@ import { picturePool, type PictureKind } from '../content/pictures'
 import { ask, pool, type AskedQuestion } from '../content/questions'
 import type { Difficulty } from '../content/topics/types'
 import { addDays, dateKey, daysBetween } from './dates'
-import { MAX_SCORE, STOP_SCORES, ZONES, formatScore, scoreToHeight } from './space'
+import { MAX_SCORE, STOP_SCORES, ZONES, formatScore, heightToScore, scoreToHeight, zoneIndexAt } from './space'
 import { seeded, shuffle } from './rng'
 import { TOPICS, type PracticeTopic, type TopicId } from './topics'
 
@@ -102,8 +102,20 @@ export function dailyHeight(answers: readonly boolean[]): number {
   return scoreToHeight(dailyPoints(answers))
 }
 
+/** Your rank for a launch: the zone the score reaches, or the Galactic Center for a perfect 1,000. */
+export function dailyRank(points: number): string {
+  return points >= MAX_POINTS ? 'Galactic Center' : ZONES[zoneIndexAt(scoreToHeight(points))].name
+}
+
+/** The next rank up and the score it starts at, or null at the top. */
+export function nextRank(points: number): { name: string; score: number } | null {
+  if (points >= MAX_POINTS) return null
+  const next = ZONES[zoneIndexAt(scoreToHeight(points)) + 1]
+  return next ? { name: next.name, score: heightToScore(next.from) } : { name: 'Galactic Center', score: MAX_POINTS }
+}
+
 /** Wordle-style result to paste into a chat. */
 export function shareText(n: number, answers: readonly boolean[]): string {
   const squares = answers.map((ok, i) => (ok ? ZONES[DAILY_ZONE[i]].square : '⬛')).join('')
-  return `Zenith #${n}\n${squares}  ${formatScore(dailyPoints(answers))}/${formatScore(MAX_POINTS)}`
+  return `Zenith #${n}\n${squares}  ${formatScore(dailyPoints(answers))}/${formatScore(MAX_POINTS)} · ${dailyRank(dailyPoints(answers))}`
 }

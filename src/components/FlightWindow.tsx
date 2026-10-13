@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { CLIMB_DELAY, clamp01, prefersReducedMotion } from '../lib/climb'
 import { seeded } from '../lib/rng'
 import { CLIMB_SECONDS } from '../lib/sound'
-import { MAX_HEIGHT, MILESTONES, ZONES, zoneIndexAt } from '../lib/space'
+import { STOPS, ZONES, nextStopAt, zoneIndexAt } from '../lib/space'
 
 interface Props {
   /** The height being shown right now (rolls up during a climb). */
@@ -138,8 +138,8 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
       ctx.fillRect(0, 0, W, H)
 
       // The text in the top left, measured first so stars stay out from behind it.
-      const top = h >= MAX_HEIGHT - 1e-6
-      const stop = top ? 'Galactic Center reached' : `Next stop: ${MILESTONES[Math.min(MAX_HEIGHT - 1, Math.floor(h + 1e-6))].name}`
+      const ahead = nextStopAt(h)
+      const stop = ahead ? `Next stop: ${ahead.name}` : 'Edge of the universe reached'
       ctx.font = LABEL_FONT
       const labelW = ctx.measureText(p.label).width
       ctx.font = STOP_FONT
@@ -168,7 +168,7 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
       // The next stop waits ahead and slides past as you reach it; the one after drops in from above.
       const ox = W - Math.min(56, W * 0.16)
       const oy = H * 0.5
-      for (let m = 0; m < MILESTONES.length; m++) {
+      for (let m = 0; m < STOPS.length; m++) {
         const d = m + 1 - h
         if (d <= -0.05 || d >= 2) continue
         const y = d <= 1 ? oy + (1 - d) * (H + 10) : oy - (d - 1) * (H * 0.9)
@@ -232,7 +232,7 @@ export function FlightWindow({ height, target, holdKey, label }: Props) {
         const fade = anim.kind === 'climb' ? bump(lt, 0.7, 2.4) : bump(lt, 0.05, 1.6)
         if (fade > 0) {
           const crossed = Math.floor(anim.to + 1e-6) > Math.floor(anim.from + 1e-6)
-          const word = anim.kind === 'hold' ? 'Holding' : crossed ? `${MILESTONES[Math.floor(anim.to + 1e-6) - 1].name}!` : 'Climbing'
+          const word = anim.kind === 'hold' ? 'Holding' : crossed ? `${STOPS[Math.floor(anim.to + 1e-6) - 1].name}!` : 'Climbing'
           ctx.globalAlpha = Math.min(1, fade * 1.6)
           ctx.font = '700 11px "Instrument Sans", system-ui, sans-serif'
           ctx.fillStyle = '#fff'

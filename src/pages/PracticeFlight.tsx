@@ -4,7 +4,7 @@ import { FlightFrame, FuelCells } from '../components/FlightHud'
 import { TopicIcon } from '../components/Icons'
 import { Round } from '../components/Round'
 import type { AskedQuestion } from '../content/questions'
-import { DIFFICULTY_NAMES, MAX_HEIGHT, ZONES, heightToScore, milestoneAt, scoreAt, zoneAt } from '../lib/space'
+import { DIFFICULTY_NAMES, MAX_HEIGHT, ZONES, heightToScore, milestoneAt, regionName, scoreAt, zoneAt } from '../lib/space'
 import { MAX_FUEL, answerPractice, nextPracticeQuestion, startPractice, streakBonus, type PracticeState } from '../lib/practice'
 import { play } from '../lib/sound'
 import { addPractice } from '../lib/store'
@@ -62,6 +62,10 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
     if (step.enteredZone !== null) {
       play('levelUp', { zone: step.enteredZone })
       setBanner(ZONES[step.enteredZone].name)
+    } else if (step.passedStop) {
+      play('levelUp', { zone: ZONES.length - 1 })
+      // The first stop past the end of a Daily Launch is the Galactic Center itself; after that, each new stop.
+      setBanner(Math.floor(step.state.height + 1e-9) === MAX_HEIGHT ? 'Intergalactic Space' : milestoneAt(step.state.height)!.name)
     }
     const bonus = streakBonus(step.state.streak)
     setOutcome(correct ? `+${heightToScore(step.state.height) - heightToScore(step.state.height - step.gained)} points${bonus > 1 ? ` · ${step.state.streak} in a row` : ''}` : step.state.over ? 'Out of fuel' : '−1 fuel cell')
@@ -73,7 +77,7 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
     setOutcome(null)
     if (stateRef.current.over) {
       const s = stateRef.current
-      play('complete', { score: Math.max(1, Math.round((s.height / MAX_HEIGHT) * 7)) })
+      play('complete', { score: Math.min(7, Math.max(1, Math.round(s.height))) })
       setFinished(true)
       return
     }
@@ -95,10 +99,10 @@ function Flight({ topic, onAgain }: { topic: PracticeTopic; onAgain: () => void 
         </span>
         <div className="results-score">
           <span className="results-altitude">{scoreAt(s.height)}</span>
-          <span className="results-max">/ 1,000</span>
+          <span className="results-max">pts</span>
         </div>
         <p className="lead">
-          {s.height >= MAX_HEIGHT ? 'You reached the center of the galaxy!' : milestoneAt(s.height) ? `You made it past ${milestoneAt(s.height)!.name}, into ${zoneAt(s.height).name}.` : 'You stayed close to Earth.'}
+          {milestoneAt(s.height) ? `You made it past ${milestoneAt(s.height)!.name}, into ${regionName(s.height)}.` : 'You stayed close to Earth.'}
         </p>
         <div className="stats-row">
           <div className="stat">
