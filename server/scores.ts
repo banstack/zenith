@@ -1,10 +1,10 @@
 /**
  * Daily Launch scores, kept on the server so players can see how they compare.
  * The server can't import the app's code, so these mirror src/lib/daily.ts;
- * src/lib/apogee.test.ts checks that they agree.
+ * src/lib/zenith.test.ts checks that they agree.
  */
 
-/** Apogee #1 is this date. */
+/** Zenith #1 is this date. */
 export const EPOCH = '2026-10-09'
 
 /** Points for each daily question, in order: its difficulty, Easy 1 to Expert 5. */

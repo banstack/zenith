@@ -7,6 +7,7 @@ import { dailyPoints } from './daily'
  * simply no standing to show.
  */
 
+// Kept from Apogee so existing players keep their id.
 const PLAYER_KEY = 'apogee:player'
 
 /** A random id this browser keeps, so a player without an account is counted once per launch. */

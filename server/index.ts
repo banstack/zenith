@@ -21,5 +21,5 @@ const app = createApp({ db, staticDir, secureCookies: production, allowDevUnlock
 const port = Number(process.env.PORT ?? 3001)
 app.listen(port, () => {
   const ui = existsSync(staticDir) ? 'serving the app from dist/' : 'API only (run `npm run dev` for the UI)'
-  console.log(`apogee server listening on :${port}, ${ui}`)
+  console.log(`zenith server listening on :${port}, ${ui}`)
 })

@@ -5,10 +5,10 @@ export function emptyData(now = Date.now()): AppData {
   return { version: 3, profile: { name: '', createdAt: now }, daily: {}, practice: [], discoveries: {} }
 }
 
-/** Depths (m) that Fathom's daily dive reached after each right answer; each one is a milestone in Apogee. */
+/** Depths (m) that Fathom's daily dive reached after each right answer; each one is a milestone in Zenith. */
 const FATHOM_DEPTHS = [0, 100, 200, 1000, 2500, 4000, 6000, 10935]
 
-/** Converts a Fathom depth to an Apogee height, keeping its place between milestones. */
+/** Converts a Fathom depth to a Zenith height, keeping its place between milestones. */
 export function depthToHeight(m: number): number {
   const i = FATHOM_DEPTHS.findIndex((d) => m < d)
   if (i === -1) return FATHOM_DEPTHS.length - 1

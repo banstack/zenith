@@ -34,7 +34,7 @@ export function DailyResults({ n, topic, answers, record = false, children }: Pr
   return (
     <div className="results">
       <span className="eyebrow with-icon">
-        <TopicIcon topic={topic} size={16} /> Apogee #{n} · {dailyTopicName(n)}
+        <TopicIcon topic={topic} size={16} /> Zenith #{n} · {dailyTopicName(n)}
       </span>
       <div className="results-altitude">{formatAltitude(height)}</div>
       <p className="lead">

@@ -64,7 +64,7 @@ describe('daily launch', () => {
   })
 
   it('builds a share grid', () => {
-    expect(shareText(12, [true, true, true, false, true, true, false])).toBe('Apogee #12\n🟦🟦⬜⬛🟧🟪⬛  11/19 pts · 30 AU')
+    expect(shareText(12, [true, true, true, false, true, true, false])).toBe('Zenith #12\n🟦🟦⬜⬛🟧🟪⬛  11/19 pts · 30 AU')
   })
 })
 

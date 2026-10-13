@@ -44,7 +44,7 @@ export function Layout() {
     <div className="app">
       <header className="topbar">
         <NavLink to="/" className="logo" onClick={close}>
-          apogee
+          zenith
         </NavLink>
         <nav className="nav-links" aria-label="Main">
           {LINKS.map((l) => (

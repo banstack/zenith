@@ -189,5 +189,5 @@ function fnv(s: string): number {
   return h >>> 0
 }
 
-/** Picture file names are hashed so the answer isn't in the image URL. */
+/** Picture file names are hashed so the answer isn't in the image URL. The "apogee" salt predates the rename; changing it means re-running build:geo. */
 export const geoAsset = (kind: 'flag' | 'outline', code: string) => `/geo/${kind}s/${fnv(`apogee:${kind}:${code}`).toString(36)}.svg`
