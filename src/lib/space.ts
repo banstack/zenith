@@ -48,19 +48,17 @@ export interface Zone {
   from: number
   to: number
   difficulty: Difficulty
-  /** Share-grid square for a right answer in this zone. */
-  square: string
   /** Flat sky color for the whole zone; the screen steps between them. */
   color: string
 }
 
 /** A zone is the stretch of space you're crossing, named for where you're headed. */
 export const ZONES: Zone[] = [
-  { id: 'near', name: 'Near Earth', from: 0, to: 2, difficulty: 1, square: '🟦', color: '#4d9be0' },
-  { id: 'lunar', name: 'Lunar Space', from: 2, to: 3, difficulty: 2, square: '⬜', color: '#3654b4' },
-  { id: 'planets', name: 'The Planets', from: 3, to: 5, difficulty: 3, square: '🟧', color: '#3a2b85' },
-  { id: 'interstellar', name: 'Interstellar Space', from: 5, to: 6, difficulty: 4, square: '🟪', color: '#22174f' },
-  { id: 'galaxy', name: 'Deep Galaxy', from: 6, to: MAX_HEIGHT, difficulty: 5, square: '🟨', color: '#0c0a1d' },
+  { id: 'near', name: 'Near Earth', from: 0, to: 2, difficulty: 1, color: '#4d9be0' },
+  { id: 'lunar', name: 'Lunar Space', from: 2, to: 3, difficulty: 2, color: '#3654b4' },
+  { id: 'planets', name: 'The Planets', from: 3, to: 5, difficulty: 3, color: '#3a2b85' },
+  { id: 'interstellar', name: 'Interstellar Space', from: 5, to: 6, difficulty: 4, color: '#22174f' },
+  { id: 'galaxy', name: 'Deep Galaxy', from: 6, to: MAX_HEIGHT, difficulty: 5, color: '#0c0a1d' },
 ]
 
 export function zoneIndexAt(height: number): number {

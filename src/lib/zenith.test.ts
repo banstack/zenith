@@ -81,7 +81,7 @@ describe('daily launch', () => {
   })
 
   it('builds a share grid', () => {
-    expect(shareText(12, [true, true, true, false, true, true, false])).toBe('Zenith #12\n🟦🟦⬜⬛🟧🟪⬛  550/1,000 · Interstellar Space')
+    expect(shareText(12, [true, true, true, false, true, true, false])).toBe('Zenith #12 · 5/7\n🟩🟩🟩⬛🟩🟩⬛\n550/1,000 · Interstellar Space')
   })
 })
 

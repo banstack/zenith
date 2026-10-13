@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { DAILY_ZONE, MAX_POINTS, dailyCategories, dailyHeight, dailyPoints, dailyQuestions, dailyRank, dailyTopicName, nextRank, shareText } from '../lib/daily'
-import { MAX_HEIGHT, ZONES, formatScore, milestoneAt } from '../lib/space'
+import { MAX_POINTS, dailyCategories, dailyHeight, dailyPoints, dailyQuestions, dailyRank, dailyTopicName, nextRank, shareText } from '../lib/daily'
+import { MAX_HEIGHT, formatScore, milestoneAt } from '../lib/space'
 import { ClimbProfile } from './ClimbCharts'
 import { SaveStreakCard } from './SaveStreakCard'
 import { TopicIcon } from './Icons'
@@ -50,7 +50,7 @@ export function DailyResults({ n, topic, answers, record = false, children }: Pr
       {standing && <p className="standing">{standingText(standing, record)}</p>}
       <div className="squares" aria-label={`${right} of 7 right`}>
         {answers.map((ok, i) => (
-          <span key={i} className={`square ${ok ? `z-${ZONES[DAILY_ZONE[i]].id}` : 'miss'}`} />
+          <span key={i} className={`square ${ok ? 'hit' : 'miss'}`} />
         ))}
       </div>
       <ClimbProfile answers={answers} />

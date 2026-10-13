@@ -399,6 +399,7 @@ button { font: inherit; color: inherit; }
 .results-altitude { font-family: var(--f-num); font-size: clamp(3.4rem, 13vw, 5rem); font-weight: 600; letter-spacing: -0.01em; line-height: 0.95; font-variant-numeric: tabular-nums; }
 .squares { display: flex; gap: 6px; }
 .square { width: 32px; height: 32px; border-radius: 8px; box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6); }
+.square.hit { background: var(--good); }
 .square.miss { background: transparent; box-shadow: none; outline: 2px dashed rgb(255 255 255 / 0.5); outline-offset: -2px; }
 
 .profile { width: 100%; max-width: 420px; height: auto; }
