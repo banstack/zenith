@@ -65,6 +65,9 @@ export const bankFor = (id: Category['id'], d: Difficulty) => (isPicture(id) ? p
  */
 export const DEALER_SWITCH = '2026-10-20'
 
+/** Where a picture deck borrows from once it runs out: the next difficulty up first, then down. */
+const NEIGHBORS: Record<Difficulty, Difficulty[]> = { 1: [2, 3, 4, 5], 2: [3, 4, 5, 1], 3: [4, 5, 2, 1], 4: [5, 3, 2, 1], 5: [4, 3, 2, 1] }
+
 type Bank = (id: Category['id'], d: Difficulty) => readonly TriviaQuestion[]
 
 /** Deals card `index` from a deck that is reshuffled each time it runs out. */
@@ -76,8 +79,9 @@ function legacyDeal(bank: readonly TriviaQuestion[], deck: string, index: number
 /**
  * Deals launches in order, remembering when each question was last shown.
  * From DEALER_SWITCH on, each slot gets a question never shown in any earlier
- * launch, picked at random from its deck. Only once a deck has shown every
- * question does one come back, and then only from the half shown longest ago.
+ * launch, picked at random from its deck. A flag or outline deck that runs out
+ * borrows unseen countries from a neighboring difficulty. Only once nothing
+ * unseen is left does a question come back, from the half shown longest ago.
  *
  * A question joins its deck on its `since` date, so launch n depends only on
  * questions dated n or earlier: adding questions never changes a past launch.
@@ -98,10 +102,14 @@ export function makeDealer(bankFor: Bank) {
         q = legacyDeal(bankFor(c.id, d).filter((x) => !x.since), `themed:${key}`, used)
         legacyUsed.set(key, used + 1)
       } else {
-        const bank = bankFor(c.id, d).filter((x) => !x.since || dailyNumber(x.since) <= n)
-        const unseen = bank.filter((x) => !lastShown.has(x.id))
+        const eligible = (diff: Difficulty) => bankFor(c.id, diff).filter((x) => !x.since || dailyNumber(x.since) <= n)
+        const unseenAt = (diff: Difficulty) => eligible(diff).filter((x) => !lastShown.has(x.id))
+        const bank = eligible(d)
+        // A picture deck that has shown every country borrows unseen ones from the next difficulty up, then down.
+        const borrowFrom = isPicture(c.id) ? NEIGHBORS[d] : []
+        const unseen = [d, ...borrowFrom].map(unseenAt).find((u) => u.length) ?? []
         const rand = seeded(`deal:${key}:${n}`)
-        // Each deck deals at most once a launch, so no two questions share a last-shown launch.
+        // Each category deals once a launch, so no two of its questions share a last-shown launch.
         const choices = unseen.length ? unseen : [...bank].sort((a, b) => lastShown.get(a.id)! - lastShown.get(b.id)!).slice(0, Math.ceil(bank.length / 2))
         q = choices[Math.floor(rand() * choices.length)]
       }
